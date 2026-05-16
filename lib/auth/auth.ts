@@ -28,12 +28,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
       verificationTokensTable: schema.verificationTokens,
     }),
     session: { strategy: "database" },
-    secret: env.authSecret(),
+    secret: process.env.AUTH_SECRET ?? "dev-secret-please-replace",
     providers: [
       Resend({
-        apiKey: env.resendApiKey(),
-        from: env.resendFrom(),
+        apiKey: process.env.RESEND_API_KEY ?? "",
+        from: process.env.RESEND_FROM ?? "onboarding@example.com",
         async sendVerificationRequest({ identifier, url }) {
+          if (!env.hasResend()) {
+            console.warn(
+              `[zarg] Magic link not sent — RESEND_API_KEY missing. Link would be: ${url}`
+            );
+            return;
+          }
           await sendMagicLinkEmail({ to: identifier, url });
         },
       }),

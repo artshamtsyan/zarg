@@ -1,0 +1,220 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import type Anthropic from "@anthropic-ai/sdk";
+import { getAnthropic } from "./anthropic";
+import { DISCOVERY_TOOLS } from "./discovery-tools";
+import { env } from "@/lib/env";
+
+let cachedSkill: string | null = null;
+
+function getDiscoverySkill(): string {
+  if (cachedSkill) return cachedSkill;
+  cachedSkill = readFileSync(resolve(process.cwd(), "lib/ai/prompts/discovery-skill.md"), "utf8");
+  return cachedSkill;
+}
+
+const SYSTEM_PREAMBLE = `You are Zarg's discovery agent. You are talking to a small-business owner who just signed up.
+
+Your goal is to run a short, high-signal conversation (target 7-10 turns total — never more than 12) and end by calling finalize_profile with a complete picture of their business.
+
+Strict rules:
+- Ask ONE focused question per turn. Batch closely related sub-questions naturally; do not ask 3 separate questions in one turn.
+- Whenever the owner confirms a fact you should remember, call record_profile_field for that fact in the SAME turn (before, after, or alongside your next question is fine — Anthropic tool use returns a tool_use block alongside text).
+- Whenever the owner describes a repeatable manual process, call propose_workflow for it.
+- After you understand the main workflow and goals, call assess_automation exactly once.
+- When you have enough — name, domain, location, current_state, goals, entities vocabulary, at least one workflow, and an assess_automation — call finalize_profile and STOP. Do not ask any more questions after finalize_profile.
+- Default location is Armenia unless the owner says otherwise.
+- Always also return a "suggested_replies" array of 2-4 short quick-reply chips the owner can tap. Embed them as the last paragraph of your text, surrounded by the markers <quick> ... </quick>, one per line. The UI strips this block before rendering.
+- Keep your tone warm, plain, and practical. No corporate filler. Short sentences.
+
+The full discovery skill below is your methodology reference. Follow it.`;
+
+export interface PersistedMessage {
+  role: "user" | "assistant" | "tool";
+  content: string;
+  toolCalls?: unknown;
+}
+
+export interface AnthropicMessage {
+  role: "user" | "assistant";
+  content: Anthropic.Messages.MessageParam["content"];
+}
+
+export function buildSystemBlocks(): Anthropic.Messages.MessageCreateParams["system"] {
+  // cache_control is supported by the API for the discovery skill block, but
+  // the SDK's TextBlockParam type doesn't surface it. Cast through to keep
+  // strict types happy without losing the cache hint at runtime.
+  return [
+    { type: "text", text: SYSTEM_PREAMBLE },
+    {
+      type: "text",
+      text: getDiscoverySkill(),
+      cache_control: { type: "ephemeral" },
+    } as unknown as { type: "text"; text: string },
+  ];
+}
+
+interface BuildMessagesArgs {
+  tenantName: string;
+  ownerName: string | null;
+  history: PersistedMessage[];
+  userTurn: string;
+}
+
+export function buildMessages({
+  tenantName,
+  ownerName,
+  history,
+  userTurn,
+}: BuildMessagesArgs): Anthropic.Messages.MessageParam[] {
+  const messages: Anthropic.Messages.MessageParam[] = [];
+
+  // Seed the conversation with a bootstrap user note so the first assistant
+  // turn can greet specifically. If history already exists, skip the bootstrap.
+  if (history.length === 0) {
+    const greetingHint = ownerName
+      ? `The owner's name is ${ownerName}. The business they just registered is "${tenantName}".`
+      : `The business they just registered is "${tenantName}".`;
+    messages.push({
+      role: "user",
+      content: `${greetingHint}\n\nGreet them warmly by name, then ask the first discovery question.`,
+    });
+  } else {
+    for (const m of history) {
+      if (m.role === "tool") continue; // tool results are emitted inline in the assistant turn
+      messages.push({
+        role: m.role,
+        content: m.content,
+      } as Anthropic.Messages.MessageParam);
+    }
+    messages.push({ role: "user", content: userTurn });
+  }
+  return messages;
+}
+
+export interface DiscoveryStreamEvent {
+  type: "text" | "tool_use" | "stop";
+  text?: string;
+  tool?: {
+    id: string;
+    name: string;
+    input: Record<string, unknown>;
+  };
+  reason?: string;
+}
+
+export async function* runDiscoveryStream(
+  args: BuildMessagesArgs
+): AsyncGenerator<DiscoveryStreamEvent, void, void> {
+  const client = getAnthropic();
+  const stream = client.messages.stream({
+    model: env.discoveryModel(),
+    max_tokens: 1200,
+    system: buildSystemBlocks() as Anthropic.Messages.MessageCreateParams["system"],
+    tools: DISCOVERY_TOOLS,
+    messages: buildMessages(args),
+  });
+
+  const pendingToolInputs = new Map<number, { id: string; name: string; jsonChunks: string[] }>();
+
+  for await (const evt of stream) {
+    if (evt.type === "content_block_start") {
+      if (evt.content_block.type === "tool_use") {
+        pendingToolInputs.set(evt.index, {
+          id: evt.content_block.id,
+          name: evt.content_block.name,
+          jsonChunks: [],
+        });
+      }
+    } else if (evt.type === "content_block_delta") {
+      if (evt.delta.type === "text_delta") {
+        yield { type: "text", text: evt.delta.text };
+      } else if (evt.delta.type === "input_json_delta") {
+        const pending = pendingToolInputs.get(evt.index);
+        if (pending) pending.jsonChunks.push(evt.delta.partial_json);
+      }
+    } else if (evt.type === "content_block_stop") {
+      const pending = pendingToolInputs.get(evt.index);
+      if (pending) {
+        let input: Record<string, unknown> = {};
+        const joined = pending.jsonChunks.join("");
+        if (joined.trim().length > 0) {
+          try {
+            input = JSON.parse(joined);
+          } catch {
+            input = { __raw: joined };
+          }
+        }
+        yield {
+          type: "tool_use",
+          tool: { id: pending.id, name: pending.name, input },
+        };
+        pendingToolInputs.delete(evt.index);
+      }
+    } else if (evt.type === "message_stop") {
+      yield { type: "stop", reason: "end_of_message" };
+    }
+  }
+}
+
+// ─── Stub mode: scripted response when ANTHROPIC_API_KEY is missing ─────────
+
+export async function* runDiscoveryStubStream({
+  history,
+  tenantName,
+  ownerName,
+}: BuildMessagesArgs): AsyncGenerator<DiscoveryStreamEvent, void, void> {
+  const turn = history.filter((m) => m.role === "assistant").length;
+  const lines: string[] =
+    turn === 0
+      ? [
+          `Hi ${ownerName ?? "there"} — welcome to Zarg.`,
+          ``,
+          `I'm going to ask a handful of short questions about how ${tenantName} runs today, then I'll build your operations profile and we'll set up the daily briefing.`,
+          ``,
+          `First question: what does ${tenantName} actually do? In a sentence — what service do you sell, and to whom?`,
+          ``,
+          `<quick>We're a yoga studio</quick>`,
+          `<quick>Hair salon</quick>`,
+          `<quick>Tutoring</quick>`,
+          `<quick>Something else — I'll type it</quick>`,
+          ``,
+          `_(Demo mode: ANTHROPIC_API_KEY is not set, so I'm reading from a canned script. Drop the key in .env.local and restart to talk to a real model.)_`,
+        ]
+      : [
+          `(Demo response — turn ${turn + 1}.)`,
+          ``,
+          `Got it. In the real model, I'd be asking follow-up questions to fill in goals, KPIs, key workflows, and constraints. Once ANTHROPIC_API_KEY is set, this conversation will be driven by Claude Opus.`,
+          ``,
+          `For now I'll record one demo profile field so you can see the right-hand panel update.`,
+          ``,
+          `<quick>Continue</quick>`,
+        ];
+
+  for (const line of lines) {
+    yield { type: "text", text: line + "\n" };
+    await new Promise((r) => setTimeout(r, 30));
+  }
+
+  // Emit one example tool call so the UI's record-profile-field plumbing is exercised.
+  if (turn === 0) {
+    yield {
+      type: "tool_use",
+      tool: {
+        id: "stub-1",
+        name: "record_profile_field",
+        input: { field: "name", value: tenantName },
+      },
+    };
+  } else {
+    yield {
+      type: "tool_use",
+      tool: {
+        id: `stub-${turn + 1}`,
+        name: "record_profile_field",
+        input: { field: "domain", value: "demo-domain" },
+      },
+    };
+  }
+  yield { type: "stop", reason: "stub_end" };
+}
