@@ -81,7 +81,10 @@ bizcopilot/
   scripts/
     register-webhook.ts
     set-bot-commands.ts
-  docs/superpowers/specs/   this file
+  docs/
+    design/
+      dimension-style.md    canonical UI tokens and rules (see Section 9)
+    superpowers/specs/      this file
 ```
 
 ---
@@ -395,7 +398,82 @@ Middleware redirects `onboarding` tenants to `/onboarding` and blocks `/dashboar
 
 ### UI stack
 
-Tailwind + shadcn/ui. Chat uses a simple streaming-text component reading from the Anthropic SSE response. The profile panel revalidates via SWR after each turn.
+- **Next.js + Tailwind v4 + shadcn/ui** as the structural base
+- **Visual language: the "Dimension" dark command-center system** — full reference saved in `docs/design/dimension-style.md` and is the canonical source of truth for tokens, components, and do/don't rules. The implementation imports the Dimension tokens into `app/globals.css` under Tailwind v4's `@theme` directive (the file in `docs/design/dimension-style.md` has the exact CSS to drop in).
+- **Fonts:** Geist (headings) and DM Sans (body) loaded via `next/font/google` with `display: swap`. Inter and system-ui are the documented fallbacks.
+- **Chat** uses a simple streaming-text component reading from the Anthropic SSE response.
+- **Data fetching:** SWR for revalidation; the profile panel revalidates after each discovery turn.
+
+### Visual language (applied to our routes)
+
+The Dimension reference covers tokens and primitives. This section pins down how we apply them across BizCopilot's surfaces. **Anything not specified here defers to `docs/design/dimension-style.md`.**
+
+**Global**
+- Page canvas: `--color-midnight-base` (`#0a0a0a`)
+- Body text: DM Sans 16px / `--color-ghost-white`
+- Headings: Geist; display 48px on landing, heading 32px on dashboard pages
+- Default element gap 8px, card padding 16px, section gap 40px
+- Cards: 24px radius (`--radius-cards`); translucent variants use 42px and `backdrop-filter: blur(4px)` over `rgba(0,0,0,0.2)`
+- Buttons: primary = Pill Button (white fill, dark text, 9999px radius); secondary = Ghost Button (transparent, 1px `--color-ghost-white` border, 10px radius)
+- **Do not** introduce strong chromatic colors for UI elements. Accent uses (`--color-interactive-glow` `#6b62f2`) are restricted to ambient gradients and decorative dots — never as a CTA fill.
+- **Do not** ship a light theme; dark is the only theme in v1.
+
+**Landing (`/`)**
+- Full-bleed `--gradient-gradient-aura` background extending edge to edge; content in a centered max-width column.
+- Two-column hero: left = Geist display headline ("Your daily ops briefing, written by an AI that knows your business"), DM Sans subhead, primary Pill CTA "Get your daily briefing" + Ghost secondary "See an example briefing".
+- Right column: Translucent Spotlight Card (`rgba(0,0,0,0.2)`, 42px radius, 22/28px padding, blur 4px) containing a mock Telegram briefing screenshot.
+- Below the hero: three Ghost Corner Radius Cards (`rgba(212,212,212,0.1)`, 24px radius) explaining the three pillars — discovery, seeding, daily briefing.
+
+**Signup (`/signup`)**
+- Centered, single-column form on Midnight Base.
+- Inputs: 1px `--color-ghost-white` border, 10px radius, 16px DM Sans text, `--color-silver-whisper` placeholders.
+- Submit = Pill Button. Below it, Ash Text helper line: "We'll email you a magic link."
+
+**Discovery chat (`/onboarding`)**
+- Split layout: left chat ~60%, right "Profile so far" panel ~40%, 40px gap.
+- **Chat surface:** chat history in a Ghost Corner Radius Card. Each message is its own translucent card — assistant left-aligned on Storm Gray (`#161616`), user right-aligned on Canvas White over a darker chip; 24px radius, 16px padding, 8px stack gap.
+- **Quick replies:** Pill Buttons in a horizontal flow below the latest assistant message.
+- **Composer:** sticky bottom row — textarea with 1px `--color-ghost-white` border + 10px radius, Pill "Send" button.
+- **Profile panel:** Ghost Corner Radius Card containing the profile fields as labeled rows. Empty fields render with Slate Text placeholder; as `record_profile_field` calls land, each row transitions to Ghost White with a brief subtle highlight (no chromatic flash — just a one-shot border opacity pulse).
+- **Finalization screen (`/onboarding/done`):** full-width Translucent Spotlight Card holding the generated spec rendered as headed sections. Footer: Ghost "Edit something" + Pill "Looks good — let's go".
+
+**Dashboard shell (`/dashboard/*`)**
+- Layout: top bar with workspace name in Geist subheading + Ghost menu (account / logout), 24px page padding, content in a max-width column.
+- **Bottom navigation:** the Dimension pattern — sticky bottom pill bar over a backdrop-blurred translucent surface, containing the six destinations (Home / Profile / Briefings / Telegram / Data / Settings) as Floating Pill Bar Buttons with icons + label.
+- Page headings: Geist heading 32px.
+
+**Dashboard home (`/dashboard`)**
+- Hero card: Translucent Spotlight Card titled "Tomorrow's briefing (preview)" with the rendered briefing markdown inside. Footer of this card: Pill "Send me a preview now" + Ghost "Regenerate".
+- Below: three small Ghost Corner Radius Cards — "Telegram", "Discovery profile", "Today's data snapshot" — each with one Pill CTA pointing to the relevant sub-route.
+
+**Profile (`/dashboard/profile`)**
+- Section per profile group (current state / goals / KPIs / entities / workflows / risks). Each section is a Ghost Corner Radius Card with editable rows. Edit toggles to a 10px-radius input with `--color-ghost-white` border. Save = Pill, Cancel = Ghost.
+
+**Briefings (`/dashboard/briefings`)**
+- "Tomorrow's preview" Translucent Spotlight Card at top.
+- Past briefings rendered as a stack of Ghost Corner Radius Cards. Each card header: date in Geist subheading + status chip (`sent` / `failed` / `skipped`) as a small pill in Ash Text.
+
+**Telegram (`/dashboard/telegram`)**
+- Linking flow as a single centered Translucent Spotlight Card containing the one-time code in Geist heading-sm + Pill "Open Telegram" deep link. Below: small Slate Text "Code expires in 15 minutes" with a Ghost "Generate a new code" beside it.
+- Once linked, the card flips to a check-state with the linked chat handle and Ghost "Unlink".
+- Below the card: a row with briefing time picker (Ghost Button popover), Pill "Pause briefings" / "Resume briefings" toggle.
+
+**Data (`/dashboard/data`)**
+- A persistent banner pill at the top: "Demo data — not your real customers" in Storm Gray over Ash Text.
+- Tables rendered as Ghost Corner Radius Cards, one per entity (people, events, payments, packages). 16px row padding, hairline `--color-gunmetal` row dividers.
+
+**Settings (`/dashboard/settings`)**
+- Form layout matching the Profile page styling. One Pill "Save changes" pinned to the bottom right.
+
+**Telegram message styling**
+- Telegram is its own medium — we use plain `MarkdownV2`, but we keep the *information architecture* of the briefing (Today / Money / People / Suggested actions / Heads-up) consistent with what the dashboard shows. The dashboard's "Preview" card therefore renders the same markdown body the owner will receive.
+
+### Accessibility notes
+
+- All text on Midnight Base uses Ghost White (`#e5e5e5`) or brighter for body — meets WCAG AA against `#0a0a0a`.
+- Slate Text (`#686868`) is restricted to non-critical helper copy (it does not meet AA on Midnight; never use it for required information).
+- Focus rings: 2px outset `--color-canvas-white` at 1px offset on all interactive elements (the spec calls for soft focused utility — this is the simplest accessible interpretation).
+- Motion: respect `prefers-reduced-motion`; the field-fill pulse in the discovery profile panel is opacity-only and disabled when reduced motion is set.
 
 ---
 
