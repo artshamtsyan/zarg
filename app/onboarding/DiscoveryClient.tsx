@@ -26,7 +26,11 @@ function extractQuickReplies(text: string): string[] {
   const out: string[] = [];
   let m: RegExpExecArray | null;
   while ((m = QUICK_RE.exec(text))) {
-    out.push(m[1].trim());
+    // Split on newlines in case the model crams multiple options into a single block.
+    for (const line of m[1].split(/\r?\n/)) {
+      const t = line.trim();
+      if (t.length > 0 && t.length <= 80) out.push(t);
+    }
   }
   return out;
 }

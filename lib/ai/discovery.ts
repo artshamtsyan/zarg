@@ -1,16 +1,11 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import type Anthropic from "@anthropic-ai/sdk";
 import { getAnthropic } from "./anthropic";
 import { DISCOVERY_TOOLS } from "./discovery-tools";
+import { DISCOVERY_SKILL } from "./discovery-skill";
 import { env } from "@/lib/env";
 
-let cachedSkill: string | null = null;
-
 function getDiscoverySkill(): string {
-  if (cachedSkill) return cachedSkill;
-  cachedSkill = readFileSync(resolve(process.cwd(), "lib/ai/prompts/discovery-skill.md"), "utf8");
-  return cachedSkill;
+  return DISCOVERY_SKILL;
 }
 
 const SYSTEM_PREAMBLE = `You are Zarg's discovery agent. You are talking to a small-business owner who just signed up.
@@ -24,7 +19,10 @@ Strict rules:
 - After you understand the main workflow and goals, call assess_automation exactly once.
 - When you have enough — name, domain, location, current_state, goals, entities vocabulary, at least one workflow, and an assess_automation — call finalize_profile and STOP. Do not ask any more questions after finalize_profile.
 - Default location is Armenia unless the owner says otherwise.
-- Always also return a "suggested_replies" array of 2-4 short quick-reply chips the owner can tap. Embed them as the last paragraph of your text, surrounded by the markers <quick> ... </quick>, one per line. The UI strips this block before rendering.
+- Always offer 2-4 short quick-reply chips the owner can tap. Emit each chip as its OWN <quick>...</quick> block on its own line at the very end of your message — for example:
+  <quick>Yes, that's right</quick>
+  <quick>Not quite — let me explain</quick>
+  Each chip should be 1-6 words. Never put multiple chips inside the same <quick> block. The UI strips these markers before rendering.
 - Keep your tone warm, plain, and practical. No corporate filler. Short sentences.
 
 The full discovery skill below is your methodology reference. Follow it.`;
