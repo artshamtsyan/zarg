@@ -1,0 +1,11 @@
+node_modules
+.next
+.vercel
+.turbo
+.DS_Store
+*.log
+.env
+.env.local
+.env*.local
+next-env.d.ts
+drizzle/.snapshots
