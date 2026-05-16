@@ -1,8 +1,9 @@
-# BizCopilot — Design Spec
+# Zarg — Design Spec
 
 **Date:** 2026-05-16
 **Status:** Approved for implementation planning
-**Working name:** `bizcopilot`
+**Application name:** Zarg
+**Repo / package name:** `zarg`
 
 ---
 
@@ -43,14 +44,14 @@ Single Next.js 15 app (TypeScript, App Router) with Postgres, deployed on Vercel
 - **LLM layer** — Anthropic SDK with prompt caching
   - `claude-opus-4-7` for the discovery conversation
   - `claude-sonnet-4-6` for seed-data generation and daily briefings
-- **Telegram** — one shared platform bot in webhook mode (`@BizCopilotBot`); per-tenant linking via one-time code
+- **Telegram** — one shared platform bot in webhook mode (`@ZargBot`); per-tenant linking via one-time code
 - **Scheduler** — Vercel Cron hits `/api/cron/daily-briefings` hourly; the endpoint fans out to tenants whose local briefing time falls in this UTC hour
 - **Auth** — NextAuth (Auth.js v5) with email magic links via Resend
 
 ### Repo layout
 
 ```
-bizcopilot/
+zarg/
   app/
     (auth)/                 signup, login, magic-link callback
     (onboarding)/           discovery chat, finalization
@@ -324,7 +325,7 @@ Suggested actions are the agent's keep-its-keep moment: 3 actions tied to the te
 
 ### Linking flow
 
-1. Dashboard shows a one-time code (e.g. `LINK-7K3PQA`) and a deep link `https://t.me/BizCopilotBot?start=LINK-7K3PQA`
+1. Dashboard shows a one-time code (e.g. `LINK-7K3PQA`) and a deep link `https://t.me/ZargBot?start=LINK-7K3PQA`
 2. Owner taps the link → Telegram opens → bot receives `/start LINK-7K3PQA`
 3. Webhook matches the code to `owners.telegram_link_code`, writes the sender's `chat_id` to `owners.telegram_chat_id`, clears the code, replies "Linked. Your first briefing arrives tomorrow at {time}."
 4. Dashboard polls the owner row and shows "Linked ✓"
@@ -406,7 +407,7 @@ Middleware redirects `onboarding` tenants to `/onboarding` and blocks `/dashboar
 
 ### Visual language (applied to our routes)
 
-The Dimension reference covers tokens and primitives. This section pins down how we apply them across BizCopilot's surfaces. **Anything not specified here defers to `docs/design/dimension-style.md`.**
+The Dimension reference covers tokens and primitives. This section pins down how we apply them across Zarg's surfaces. **Anything not specified here defers to `docs/design/dimension-style.md`.**
 
 **Global**
 - Page canvas: `--color-midnight-base` (`#0a0a0a`)
@@ -529,5 +530,5 @@ The Dimension reference covers tokens and primitives. This section pins down how
 ## 13. Open questions left for implementation planning
 
 - Hosting choice: assumed Vercel + Neon; if DINNO prefers AWS/Azure, the cron and webhook pieces need to be re-mapped (EventBridge / Functions). Cheap to swap.
-- Exact bot username — `@BizCopilotBot` is a placeholder pending availability on BotFather.
+- Exact bot username — `@ZargBot` is a placeholder pending availability on BotFather.
 - Whether the "Demo data" badge should be more prominent (e.g., a permanent banner) — judgment call we'll make during UI build.
