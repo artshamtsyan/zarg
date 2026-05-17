@@ -142,9 +142,9 @@ export default function ConceptPage() {
             <FlowStep
               tone="pink"
               tag="Step 7"
-              title="Telegram delivery (Phase 5 — wired structurally)"
-              body="One shared platform bot. Owners /start it with a one-time code; webhook ties their chat_id to their tenant. Cron sends the briefing as a MarkdownV2 message with inline buttons [Open dashboard] [Regenerate] [Pause]."
-              tech="node-telegram-bot-api · webhook secret · MarkdownV2"
+              title="Telegram delivery — daily DM to the owner"
+              body="One shared platform bot. Owners /start it with a one-time code from /dashboard/telegram; webhook ties their chat_id to their tenant. Daily cron sends the briefing as a MarkdownV2 message with inline buttons [Open dashboard] [Regenerate] [Pause]. /preview generates on demand; /pause and /resume work from any conversation."
+              tech="Telegram Bot API · webhook secret · MarkdownV2"
             />
           </div>
         </section>
@@ -188,7 +188,7 @@ export default function ConceptPage() {
         <section className="mt-24">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Where we are</p>
           <h2 className="mt-3 text-[28px] font-semibold tracking-heading-sm text-ink sm:text-[32px]">
-            Seven phases, five shipped.
+            Seven phases, six shipped.
           </h2>
 
           <div className="mt-10 space-y-3">
@@ -198,8 +198,8 @@ export default function ConceptPage() {
             <PhaseRow status="done" id="3" title="Self-learning baseline (synthetic head start)" body="LLM-generated baseline with Zod validation + Faker fallback. Index-based references resolved to UUIDs. One-transaction insert. /dashboard/data viewer with synthetic vs owner-logged source pills on every row." />
             <PhaseRow status="done" id="4" title="Daily briefing engine" body="Tenant-aware SQL snapshots (timezone-correct via date-fns-tz). Sonnet generator with strict format. Daily Vercel Cron, idempotent on (tenant_id, for_date). Aging job keeps the synthetic clock alive while owner-logged rows accumulate." />
             <PhaseRow status="done" id="5" title="Self-learning chat" body="/dashboard/learn lets the owner type real events in plain language. Four tools (record_person, record_event, record_booking, record_payment) write owner_logged rows alongside the synthetic baseline. Fuzzy name matching + natural-language time parsing in the tenant's timezone." />
-            <PhaseRow status="next" id="6" title="Telegram delivery" body="One shared bot, one-time linking code, MarkdownV2 send helpers, /pause /resume /preview commands, callback queries from inline buttons. Webhook secret verification." />
-            <PhaseRow status="next" id="7" title="Dashboard polish" body="Profile editor, Telegram link page, settings (timezone, briefing time, pause), bottom FloatingPillBar nav, focus rings and motion-reduced fallbacks." />
+            <PhaseRow status="done" id="6" title="Telegram delivery" body="One shared bot, one-time linking code, MarkdownV2 send helpers, /pause /resume /preview commands, callback queries from inline buttons. Webhook secret verification. Cron fans out daily briefings to every linked owner." />
+            <PhaseRow status="next" id="7" title="Dashboard polish" body="Profile editor, settings (timezone language), bottom FloatingPillBar nav across dashboard routes, focus rings and motion-reduced fallbacks, Sunday weekly recap layered on top of daily." />
           </div>
         </section>
 
@@ -228,13 +228,12 @@ export default function ConceptPage() {
           <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
             <TaskCard tone="sky" className="p-7">
               <p className="text-[11px] uppercase tracking-[1.5px] text-outline-blue">Near term</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">Ship Telegram delivery</h3>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">Sunday weekly recap</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• BotFather setup → one shared ZargBot</li>
-                <li>• Linking flow via /start &lt;code&gt;</li>
-                <li>• MarkdownV2 escape helper + sendBriefing()</li>
-                <li>• /pause /resume /preview commands</li>
-                <li>• Cron picks up linked tenants and DMs the morning briefing</li>
+                <li>• On top of the daily, a Sunday-evening retrospective</li>
+                <li>• Money this week vs last, attendance trend, package churn risk</li>
+                <li>• 3 actions for the upcoming week, not the next day</li>
+                <li>• Lower frequency = denser signal, lower fatigue</li>
               </ul>
             </TaskCard>
 

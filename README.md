@@ -39,4 +39,4 @@ See `.env.example`. Minimums per phase:
 | 2 (discovery) | + `ANTHROPIC_API_KEY` |
 | 3 (seed) | (same as 2) |
 | 4 (briefings) | (same as 2) |
-| 5 (Telegram) | + `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, public HTTPS URL for webhook |
+| 5 (Telegram) | + `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_BOT_USERNAME`, public HTTPS URL for webhook. Run `pnpm tg:webhook` and `pnpm tg:commands` once after first deploy. |
