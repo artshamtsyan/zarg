@@ -130,6 +130,7 @@ export const people = pgTable("people", {
   status: text("status").notNull().default("active"),
   segment: text("segment"),
   notes: text("notes"),
+  source: text("source").notNull().default("synthetic"), // synthetic | owner_logged | imported
   joinedAt: timestamp("joined_at", { mode: "date" }).notNull().defaultNow(),
 });
 
@@ -144,6 +145,7 @@ export const events = pgTable("events", {
   capacity: integer("capacity").notNull().default(12),
   type: text("type"),
   status: text("status").notNull().default("scheduled"),
+  source: text("source").notNull().default("synthetic"),
 });
 
 export const bookings = pgTable("bookings", {
@@ -160,6 +162,7 @@ export const bookings = pgTable("bookings", {
   status: text("status").notNull().default("booked"),
   bookedAt: timestamp("booked_at", { mode: "date" }).notNull().defaultNow(),
   attendance: text("attendance"), // "attended" | "no_show" | null
+  source: text("source").notNull().default("synthetic"),
 });
 
 export const payments = pgTable("payments", {
@@ -175,6 +178,7 @@ export const payments = pgTable("payments", {
   ref: text("ref"),
   paidAt: timestamp("paid_at", { mode: "date" }).notNull().defaultNow(),
   kind: text("kind").notNull().default("single"), // "single" | "package" | "trial"
+  source: text("source").notNull().default("synthetic"),
 });
 
 export const packages = pgTable("packages", {

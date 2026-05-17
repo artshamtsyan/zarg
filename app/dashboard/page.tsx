@@ -68,14 +68,23 @@ export default async function DashboardPage() {
           )}
         </TaskCard>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <DashboardLink
+            href="/dashboard/learn"
+            tone="mint"
+            label="Self-learning"
+            value="Tell Zarg what happened"
+            footer="Real bookings, payments, attendance — typed in plain language"
+          />
           <DashboardLink
             href="/dashboard/data"
             tone="pink"
             label="Data"
             value={`${counts[0]} people · ${counts[1]} events`}
-            footer="Demo dataset Zarg seeded for you"
+            footer="Synthetic baseline + everything you've taught Zarg"
           />
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <DashboardLink
             href="/dashboard/telegram"
             tone="violet"

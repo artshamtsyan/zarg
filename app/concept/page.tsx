@@ -64,12 +64,13 @@ export default function ConceptPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-canvas-ice text-[20px] font-semibold text-ink">
                 2
               </div>
-              <h3 className="mt-5 text-[20px] font-semibold text-ink">Synthetic dataset, instantly</h3>
+              <h3 className="mt-5 text-[20px] font-semibold text-ink">Self-learning, with a head start</h3>
               <p className="mt-3 text-[15px] leading-[1.55] text-ink/80">
-                On finalize, Sonnet generates a coherent 4-week operational dataset shaped by the
-                profile — 15–30 people with locale-appropriate names, 25–35 recurring events
-                across last + next 2 weeks, bookings with attendance, payments mostly successful
-                with a few pending, packages with realistic visits remaining.
+                On finalize, Sonnet generates a coherent synthetic baseline so the dashboard isn't
+                empty — 15–30 locale-appropriate clients, recurring classes across the past and
+                next two weeks, bookings, payments, packages. From day one, owners type real
+                events in plain language and Zarg writes real rows alongside — gradually replacing
+                the baseline with the actual studio.
               </p>
             </TaskCard>
 
@@ -81,7 +82,8 @@ export default function ConceptPage() {
               <p className="mt-3 text-[15px] leading-[1.55] text-ink/80">
                 Every morning Sonnet reads the tenant's data, the profile vocabulary, and yesterday's
                 briefing for continuity — then writes today's: Today / Money / People / three goal-tied
-                Suggested Actions / Heads-up. ~$0.01–0.02 per tenant per day.
+                Suggested Actions / Heads-up. As real data crowds out the synthetic baseline, the
+                briefing becomes literally about the owner's customers. ~$0.01–0.02 per tenant per day.
               </p>
             </TaskCard>
           </div>
@@ -119,20 +121,27 @@ export default function ConceptPage() {
             <FlowStep
               tone="mint"
               tag="Step 4"
-              title="Finalize generates the synthetic dataset"
-              body="One Sonnet call with strict JSON output. Validated by Zod, retried once, falls back to a procedural Faker generator if both attempts fail. All five tables (people/events/bookings/payments/packages) written in one transaction."
+              title="Finalize seeds a synthetic head start"
+              body="One Sonnet call with strict JSON output, validated by Zod and retried once, falls back to procedural Faker. All five tables (people/events/bookings/payments/packages) written in one transaction — every row marked `source = synthetic` so the platform can track what's baseline vs real."
               tech="Anthropic tool_choice · Zod · Drizzle transaction"
             />
             <FlowStep
               tone="yellow"
               tag="Step 5"
-              title="Daily briefing — preview now or wait for cron"
-              body="The Generate Now button (or the daily 05:00 UTC cron) runs the aging job to slide the synthetic clock forward, queries a tenant-aware data snapshot, and calls Sonnet with a strict format prompt. Idempotent on (tenant_id, for_date)."
-              tech="Vercel Cron · date-fns-tz · Sonnet"
+              title="Self-learning chat enriches in plain language"
+              body="The owner types what's happening at /dashboard/learn ('Maria came tonight, paid 5000 cash'). Claude calls record_person / record_event / record_booking / record_payment, the server fuzzy-matches names, resolves natural-language times in the tenant's timezone, and writes real rows marked `source = owner_logged` next to the synthetic baseline."
+              tech="Anthropic tools · date-fns-tz · Drizzle"
             />
             <FlowStep
               tone="sky"
               tag="Step 6"
+              title="Daily briefing — preview now or wait for cron"
+              body="The Generate Now button (or the daily 05:00 UTC cron) runs the aging job to slide the synthetic clock forward, queries a tenant-aware data snapshot, and calls Sonnet with a strict format prompt. Idempotent on (tenant_id, for_date). As real rows accumulate, the briefing becomes literally about the owner's customers."
+              tech="Vercel Cron · date-fns-tz · Sonnet"
+            />
+            <FlowStep
+              tone="pink"
+              tag="Step 7"
               title="Telegram delivery (Phase 5 — wired structurally)"
               body="One shared platform bot. Owners /start it with a one-time code; webhook ties their chat_id to their tenant. Cron sends the briefing as a MarkdownV2 message with inline buttons [Open dashboard] [Regenerate] [Pause]."
               tech="node-telegram-bot-api · webhook secret · MarkdownV2"
@@ -179,17 +188,18 @@ export default function ConceptPage() {
         <section className="mt-24">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Where we are</p>
           <h2 className="mt-3 text-[28px] font-semibold tracking-heading-sm text-ink sm:text-[32px]">
-            Six phases, four shipped.
+            Seven phases, five shipped.
           </h2>
 
           <div className="mt-10 space-y-3">
             <PhaseRow status="done" id="0" title="Foundation" body="Next.js 15.5 scaffold, Aboard design tokens, system-ui type system, Pill/Ghost/TaskCard primitives, marketing landing page." />
             <PhaseRow status="done" id="1" title="Persistence + magic-link auth" body="Postgres schema (13 tables), Drizzle ORM, custom migration script, NextAuth v5 (Resend provider + email + dev-backdoor demo mode), middleware-less route guarding." />
             <PhaseRow status="done" id="2" title="Discovery agent" body="Verbatim discovery skill as system prompt with cache_control. Four tools wired server-side. SSE-streamed chat with live profile panel and <quick> reply pill extraction." />
-            <PhaseRow status="done" id="3" title="Synthetic seed data" body="LLM-generated dataset with Zod validation + Faker fallback. Index-based references resolved to UUIDs. One-transaction insert. /dashboard/data viewer with persistent demo-data badge." />
-            <PhaseRow status="done" id="4" title="Daily briefing engine" body="Tenant-aware SQL snapshots (timezone-correct via date-fns-tz). Sonnet generator with strict format. Daily Vercel Cron, idempotent on (tenant_id, for_date). Aging job keeps the synthetic clock alive." />
-            <PhaseRow status="next" id="5" title="Telegram delivery" body="One shared bot, one-time linking code, MarkdownV2 send helpers, /pause /resume /preview commands, callback queries from inline buttons. Webhook secret verification." />
-            <PhaseRow status="next" id="6" title="Dashboard polish" body="Profile editor, Telegram link page, settings (timezone, briefing time, pause), bottom FloatingPillBar nav, focus rings and motion-reduced fallbacks." />
+            <PhaseRow status="done" id="3" title="Self-learning baseline (synthetic head start)" body="LLM-generated baseline with Zod validation + Faker fallback. Index-based references resolved to UUIDs. One-transaction insert. /dashboard/data viewer with synthetic vs owner-logged source pills on every row." />
+            <PhaseRow status="done" id="4" title="Daily briefing engine" body="Tenant-aware SQL snapshots (timezone-correct via date-fns-tz). Sonnet generator with strict format. Daily Vercel Cron, idempotent on (tenant_id, for_date). Aging job keeps the synthetic clock alive while owner-logged rows accumulate." />
+            <PhaseRow status="done" id="5" title="Self-learning chat" body="/dashboard/learn lets the owner type real events in plain language. Four tools (record_person, record_event, record_booking, record_payment) write owner_logged rows alongside the synthetic baseline. Fuzzy name matching + natural-language time parsing in the tenant's timezone." />
+            <PhaseRow status="next" id="6" title="Telegram delivery" body="One shared bot, one-time linking code, MarkdownV2 send helpers, /pause /resume /preview commands, callback queries from inline buttons. Webhook secret verification." />
+            <PhaseRow status="next" id="7" title="Dashboard polish" body="Profile editor, Telegram link page, settings (timezone, briefing time, pause), bottom FloatingPillBar nav, focus rings and motion-reduced fallbacks." />
           </div>
         </section>
 
@@ -242,13 +252,13 @@ export default function ConceptPage() {
 
             <TaskCard tone="violet" className="p-7">
               <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Later</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">Move from synthetic to real data</h3>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">More self-learning channels</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• Stripe webhook for payments</li>
-                <li>• Google Calendar / iCal sync for events</li>
-                <li>• Telegram chat history scraping for leads</li>
-                <li>• Sheets sync for owners who already use one</li>
-                <li>• Demo-data badge disappears once a real source is connected</li>
+                <li>• Stripe webhook → owner_logged payments automatically</li>
+                <li>• Google Calendar / iCal sync → owner_logged events</li>
+                <li>• Forward a WhatsApp / Telegram chat snippet → parsed bookings</li>
+                <li>• Sheets sync for owners who already track in one</li>
+                <li>• Synthetic baseline retired entirely once real signal is dense</li>
               </ul>
             </TaskCard>
 

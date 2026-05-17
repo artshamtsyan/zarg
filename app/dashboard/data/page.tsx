@@ -65,19 +65,24 @@ export default async function DataPage() {
           </Link>
         </header>
 
-        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-accent-orange bg-task-card-yellow px-3 py-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent-orange" />
-          <span className="text-[11px] uppercase tracking-[1.5px] text-ink">
-            Demo data — not your real customers
+        <div className="mt-8 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-whisper-gray bg-canvas-ice px-3 py-1 text-[11px] uppercase tracking-[1.5px] text-slate">
+            <span className="h-1.5 w-1.5 rounded-full bg-whisper-gray" />
+            synthetic — head-start baseline
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-outline-blue bg-ghost-blue px-3 py-1 text-[11px] uppercase tracking-[1.5px] text-outline-blue">
+            <span className="h-1.5 w-1.5 rounded-full bg-outline-blue" />
+            you taught Zarg
           </span>
         </div>
 
-        <h1 className="mt-4 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
+        <h1 className="mt-5 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
           Operational dataset
         </h1>
-        <p className="mt-2 text-[15px] leading-[1.5] text-slate">
-          A 4-week synthetic dataset Zarg generated from your business profile. The daily briefing
-          reads from these tables.
+        <p className="mt-2 max-w-2xl text-[15px] leading-[1.5] text-slate">
+          A synthetic 4-week baseline gives your dashboard a head start. Every row you teach Zarg
+          on <Link href="/dashboard/learn" className="text-outline-blue underline underline-offset-2">/dashboard/learn</Link> lands here in real time and gradually replaces the
+          synthetic noise.
         </p>
 
         {empty && (
@@ -91,49 +96,53 @@ export default async function DataPage() {
 
         <Section title={`People (${people.length})`}>
           <Table
-            cols={["Name", "Status", "Segment", "Joined"]}
-            rows={people.slice(0, 12).map((p) => [
+            cols={["Name", "Status", "Segment", "Joined", "Source"]}
+            rows={people.slice(0, 16).map((p) => [
               p.name,
               p.status,
               p.segment ?? "—",
               formatDate(p.joinedAt),
+              renderSource(p.source),
             ])}
           />
         </Section>
 
         <Section title={`Events (${events.length})`}>
           <Table
-            cols={["Starts", "Staff", "Type", "Status"]}
-            rows={events.slice(0, 12).map((e) => [
+            cols={["Starts", "Staff", "Type", "Status", "Source"]}
+            rows={events.slice(0, 16).map((e) => [
               formatDate(e.startsAt),
               e.staffName ?? "—",
               e.type ?? "—",
               e.status,
+              renderSource(e.source),
             ])}
           />
         </Section>
 
         <Section title={`Bookings (${bookings.length})`}>
           <Table
-            cols={["Booking ID", "Status", "Attendance", "Booked at"]}
-            rows={bookings.slice(0, 12).map((b) => [
+            cols={["Booking ID", "Status", "Attendance", "Booked at", "Source"]}
+            rows={bookings.slice(0, 16).map((b) => [
               b.id.slice(0, 8),
               b.status,
               b.attendance ?? "—",
               formatDate(b.bookedAt),
+              renderSource(b.source),
             ])}
           />
         </Section>
 
         <Section title={`Payments (${payments.length})`}>
           <Table
-            cols={["Amount", "Method", "Status", "Kind", "Paid at"]}
-            rows={payments.slice(0, 12).map((p) => [
+            cols={["Amount", "Method", "Status", "Kind", "Paid at", "Source"]}
+            rows={payments.slice(0, 16).map((p) => [
               money(p.amountMinor, p.currency),
               p.method,
               p.status,
               p.kind,
               formatDate(p.paidAt),
+              renderSource(p.source),
             ])}
           />
         </Section>
@@ -163,6 +172,27 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+function renderSource(source: string): string {
+  // Returned as a plain string for the Table; the component below
+  // converts the "synthetic"/"owner_logged" strings into pills.
+  return source;
+}
+
+function SourcePill({ source }: { source: string }) {
+  if (source === "owner_logged") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-outline-blue bg-ghost-blue px-2 py-0.5 text-[10px] uppercase tracking-[0.8px] text-outline-blue">
+        you
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full border border-whisper-gray bg-canvas-ice px-2 py-0.5 text-[10px] uppercase tracking-[0.8px] text-slate">
+      synthetic
+    </span>
+  );
+}
+
 function Table({ cols, rows }: { cols: string[]; rows: string[][] }) {
   if (rows.length === 0) {
     return <p className="text-[13px] text-slate">No rows.</p>;
@@ -187,7 +217,7 @@ function Table({ cols, rows }: { cols: string[]; rows: string[][] }) {
             <tr key={i} className="border-b border-whisper-gray/20 last:border-0">
               {r.map((cell, j) => (
                 <td key={j} className="px-4 py-3 text-[13px] text-ink/85">
-                  {cell}
+                  {cols[j] === "Source" ? <SourcePill source={cell} /> : cell}
                 </td>
               ))}
             </tr>
