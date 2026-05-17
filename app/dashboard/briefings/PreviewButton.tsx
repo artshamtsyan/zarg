@@ -26,9 +26,7 @@ export function PreviewButton({ hasExisting }: { hasExisting: boolean }) {
       <Pill onClick={handleClick} disabled={pending}>
         {pending ? "Generating…" : hasExisting ? "Regenerate" : "Generate now"}
       </Pill>
-      {error && (
-        <p className="font-dm-sans text-[13px] tracking-[0.35px] text-[#ff9a8a]">{error}</p>
-      )}
+      {error && <p className="text-[12px] text-accent-orange">{error}</p>}
     </div>
   );
 }

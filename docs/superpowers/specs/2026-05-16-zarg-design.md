@@ -399,15 +399,15 @@ Middleware redirects `onboarding` tenants to `/onboarding` and blocks `/dashboar
 
 ### UI stack
 
-- **Next.js + Tailwind v4 + shadcn/ui** as the structural base
-- **Visual language: the "Dimension" dark command-center system** — full reference saved in `docs/design/dimension-style.md` and is the canonical source of truth for tokens, components, and do/don't rules. The implementation imports the Dimension tokens into `app/globals.css` under Tailwind v4's `@theme` directive (the file in `docs/design/dimension-style.md` has the exact CSS to drop in).
-- **Fonts:** Geist (headings) and DM Sans (body) loaded via `next/font/google` with `display: swap`. Inter and system-ui are the documented fallbacks.
+- **Next.js + Tailwind v4** as the structural base.
+- **Visual language: the "Aboard" light pastel system** — full reference saved in `docs/design/aboard-style.md`. This is now the canonical source of truth for tokens, components, and do/don't rules; the Dimension dark system (still in `docs/design/dimension-style.md` for reference) is superseded.
+- **Fonts:** `system-ui` only (no `next/font/google`). The Aboard system uses system fonts with negative letter-spacing on large headlines.
 - **Chat** uses a simple streaming-text component reading from the Anthropic SSE response.
 - **Data fetching:** SWR for revalidation; the profile panel revalidates after each discovery turn.
 
 ### Visual language (applied to our routes)
 
-The Dimension reference covers tokens and primitives. This section pins down how we apply them across Zarg's surfaces. **Anything not specified here defers to `docs/design/dimension-style.md`.**
+The Aboard reference (`docs/design/aboard-style.md`) covers tokens and primitives. This section pins down how we apply them across Zarg's surfaces. **Anything not specified here defers to that file.** Earlier sections of this spec may reference the prior Dimension treatment — disregard those; the codebase implements Aboard.
 
 **Global**
 - Page canvas: `--color-midnight-base` (`#0a0a0a`)

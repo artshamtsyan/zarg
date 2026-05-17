@@ -52,32 +52,26 @@ function Row({ label, value, multi }: RowProps) {
   return (
     <div className="py-3 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="font-dm-sans text-[13px] uppercase tracking-[1.5px] text-ash-text">
-          {label}
-        </span>
+        <span className="text-[11px] uppercase tracking-[1.2px] text-slate">{label}</span>
         {filled ? (
-          <span className="rounded-full bg-[rgba(229,229,229,0.08)] px-2 py-0.5 font-dm-sans text-[11px] uppercase tracking-[1px] text-ghost-white">
+          <span className="rounded-full bg-ghost-blue px-2 py-0.5 text-[10px] uppercase tracking-[0.8px] text-outline-blue">
             captured
           </span>
         ) : (
-          <span className="font-dm-sans text-[11px] uppercase tracking-[1px] text-slate-text">
-            empty
-          </span>
+          <span className="text-[10px] uppercase tracking-[0.8px] text-whisper-gray">empty</span>
         )}
       </div>
       <div className="mt-1.5">
         {filled ? (
           multi || typeof value === "object" ? (
-            <pre className="whitespace-pre-wrap font-dm-sans text-[14px] leading-[1.5] tracking-[0.35px] text-ghost-white">
+            <pre className="whitespace-pre-wrap text-[13px] leading-[1.5] text-ink">
               {asString(value)}
             </pre>
           ) : (
-            <p className="font-dm-sans text-[15px] leading-[1.5] tracking-[0.4px] text-ghost-white">
-              {asString(value)}
-            </p>
+            <p className="text-[14px] leading-[1.5] text-ink">{asString(value)}</p>
           )
         ) : (
-          <p className="font-dm-sans text-[14px] tracking-[0.35px] text-slate-text">—</p>
+          <p className="text-[13px] text-whisper-gray">—</p>
         )}
       </div>
     </div>
@@ -87,19 +81,22 @@ function Row({ label, value, multi }: RowProps) {
 export function ProfilePanel({ tenant, profile, finalized }: Props) {
   return (
     <aside className="lg:sticky lg:top-6 lg:h-[72vh] lg:overflow-y-auto">
-      <GhostCard className="p-5">
+      <GhostCard className="p-6">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-geist text-[20px] text-canvas-white">Your business profile</h2>
-          <span className="font-dm-sans text-[12px] uppercase tracking-[1.5px] text-ash-text">
+          <h2 className="text-[18px] font-semibold text-ink">Your business profile</h2>
+          <span className="text-[11px] uppercase tracking-[1.2px] text-slate">
             {finalized ? "Finalized" : "Building"}
           </span>
         </div>
-        <p className="font-dm-sans mt-2 text-[13px] tracking-[0.35px] text-slate-text">
+        <p className="mt-1 text-[12px] text-slate">
           Fields fill in as Zarg learns about your business.
         </p>
-        <div className="mt-4 divide-y divide-[rgba(229,229,229,0.06)]">
+        <div className="mt-4 divide-y divide-whisper-gray/30">
           <Row label="Name" value={tenant?.name} />
-          <Row label="Domain" value={tenant?.domain && tenant.domain !== "other" ? tenant.domain : null} />
+          <Row
+            label="Domain"
+            value={tenant?.domain && tenant.domain !== "other" ? tenant.domain : null}
+          />
           <Row label="Location" value={tenant?.location} />
           <Row label="Current state" value={profile?.currentState} multi />
           <Row label="Goals" value={profile?.goals} multi />

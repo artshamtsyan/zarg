@@ -37,11 +37,7 @@ export default async function DataPage() {
       .where(eq(schema.events.tenantId, tenantId))
       .orderBy(desc(schema.events.startsAt))
       .limit(40),
-    db
-      .select()
-      .from(schema.bookings)
-      .where(eq(schema.bookings.tenantId, tenantId))
-      .limit(40),
+    db.select().from(schema.bookings).where(eq(schema.bookings.tenantId, tenantId)).limit(40),
     db
       .select()
       .from(schema.payments)
@@ -58,41 +54,35 @@ export default async function DataPage() {
   const empty = people.length + events.length === 0;
 
   return (
-    <main className="bg-aura-radial min-h-screen">
+    <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-5xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-geist text-[20px] font-semibold tracking-tight text-canvas-white"
-          >
+          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
             Zarg
           </Link>
-          <Link
-            href="/dashboard"
-            className="font-dm-sans text-[14px] tracking-[0.35px] text-ash-text hover:text-ghost-white"
-          >
+          <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard
           </Link>
         </header>
 
-        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-[rgba(229,229,229,0.12)] bg-[rgba(229,229,229,0.04)] px-3 py-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#ffb380]" />
-          <span className="font-dm-sans text-[12px] uppercase tracking-[1.5px] text-ash-text">
+        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-accent-orange bg-task-card-yellow px-3 py-1">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent-orange" />
+          <span className="text-[11px] uppercase tracking-[1.5px] text-ink">
             Demo data — not your real customers
           </span>
         </div>
 
-        <h1 className="font-geist mt-4 text-[32px] leading-[1.14] text-canvas-white">
+        <h1 className="mt-4 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
           Operational dataset
         </h1>
-        <p className="font-dm-sans mt-2 text-[15px] leading-[1.55] tracking-[0.35px] text-ghost-white">
+        <p className="mt-2 text-[15px] leading-[1.5] text-slate">
           A 4-week synthetic dataset Zarg generated from your business profile. The daily briefing
           reads from these tables.
         </p>
 
         {empty && (
           <GhostCard className="mt-8 p-5">
-            <p className="font-dm-sans text-[15px] tracking-[0.35px] text-ghost-white">
+            <p className="text-[15px] text-ink">
               No data yet. Finish discovery first — Zarg seeds your dataset when you click{" "}
               <em>Looks good — let&apos;s go</em>.
             </p>
@@ -167,7 +157,7 @@ export default async function DataPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="font-geist text-[20px] tracking-tight text-canvas-white">{title}</h2>
+      <h2 className="text-[18px] font-semibold text-ink">{title}</h2>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -175,19 +165,17 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Table({ cols, rows }: { cols: string[]; rows: string[][] }) {
   if (rows.length === 0) {
-    return (
-      <p className="font-dm-sans text-[14px] tracking-[0.35px] text-slate-text">No rows.</p>
-    );
+    return <p className="text-[13px] text-slate">No rows.</p>;
   }
   return (
-    <div className="overflow-hidden rounded-[24px] border border-[rgba(229,229,229,0.06)] bg-[rgba(212,212,212,0.04)]">
+    <div className="overflow-hidden rounded-[24px] border border-whisper-gray/40 bg-canvas-ice">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-[rgba(229,229,229,0.06)]">
+          <tr className="border-b border-whisper-gray/40">
             {cols.map((c) => (
               <th
                 key={c}
-                className="font-dm-sans px-4 py-3 text-[12px] uppercase tracking-[1.5px] text-ash-text"
+                className="px-4 py-3 text-[11px] uppercase tracking-[1.2px] text-slate"
               >
                 {c}
               </th>
@@ -196,15 +184,9 @@ function Table({ cols, rows }: { cols: string[]; rows: string[][] }) {
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr
-              key={i}
-              className="border-b border-[rgba(229,229,229,0.04)] last:border-0"
-            >
+            <tr key={i} className="border-b border-whisper-gray/20 last:border-0">
               {r.map((cell, j) => (
-                <td
-                  key={j}
-                  className="font-dm-sans px-4 py-3 text-[14px] tracking-[0.35px] text-ghost-white"
-                >
+                <td key={j} className="px-4 py-3 text-[13px] text-ink/85">
                   {cell}
                 </td>
               ))}

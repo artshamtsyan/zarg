@@ -7,13 +7,14 @@ interface GhostBaseProps {
   children: ReactNode;
 }
 
+// Ghost Primary Button — Outline Blue border, Ink text, transparent bg.
 const baseClasses = cn(
   "inline-flex items-center justify-center",
-  "bg-transparent text-ghost-white",
-  "border border-ghost-white",
-  "rounded-[10px]",
-  "px-3.5 py-2 text-[15px] tracking-[0.4px] font-medium",
-  "transition-colors hover:bg-[rgba(229,229,229,0.06)] active:bg-[rgba(229,229,229,0.12)]",
+  "bg-transparent text-ink",
+  "border border-outline-blue",
+  "rounded-full",
+  "px-5 py-2 text-[14px] font-medium",
+  "transition-colors hover:bg-ghost-blue active:bg-[#cce7fb]",
   "disabled:opacity-50 disabled:cursor-not-allowed"
 );
 

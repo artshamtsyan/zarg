@@ -1,18 +1,19 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface GhostCardProps {
+// Subtle informational card on Canvas Ice — used for grouped rows with minimal visual weight.
+export function GhostCard({
+  children,
+  className,
+}: {
   children: ReactNode;
   className?: string;
-}
-
-export function GhostCard({ children, className }: GhostCardProps) {
+}) {
   return (
     <div
       className={cn(
-        "rounded-[24px] p-4",
-        "bg-[rgba(212,212,212,0.06)]",
-        "border border-[rgba(229,229,229,0.06)]",
+        "rounded-[24px] p-6",
+        "bg-canvas-ice border border-whisper-gray/30",
         className
       )}
     >

@@ -26,7 +26,6 @@ function extractQuickReplies(text: string): string[] {
   const out: string[] = [];
   let m: RegExpExecArray | null;
   while ((m = QUICK_RE.exec(text))) {
-    // Split on newlines in case the model crams multiple options into a single block.
     for (const line of m[1].split(/\r?\n/)) {
       const t = line.trim();
       if (t.length > 0 && t.length <= 80) out.push(t);
@@ -113,10 +112,7 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
                 setStreaming(assembled);
               } else if (evt.type === "tool_use" && evt.tool) {
                 newTools!.push(evt.tool);
-                if (evt.tool.name === "finalize_profile") {
-                  setFinalized(true);
-                }
-                // Refresh profile state after each tool call
+                if (evt.tool.name === "finalize_profile") setFinalized(true);
                 refreshState();
               } else if (evt.type === "error") {
                 setError(typeof evt.message === "string" ? evt.message : "Stream error");
@@ -135,7 +131,6 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
     [refreshState]
   );
 
-  // Initial load + bootstrap (if no history yet, kick off the agent's greeting)
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -153,7 +148,6 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
     };
   }, [refreshState, sendTurn]);
 
-  // Auto-scroll chat
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -174,7 +168,6 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
     (text: string) => {
       const t = text.trim();
       if (!t || busy) return;
-      // Optimistic add
       setMessages((m) => [...m, { role: "user", content: t }]);
       setInput("");
       sendTurn(t);
@@ -197,28 +190,23 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
       <section className="flex h-[72vh] flex-col">
         {!hasAnthropic && (
           <GhostCard className="mb-3 px-4 py-3">
-            <p className="font-dm-sans text-[13px] tracking-[0.35px] text-ash-text">
+            <p className="text-[13px] text-slate">
               Demo mode — ANTHROPIC_API_KEY is not set. Replies come from a canned script. Add the
-              key to <code className="text-canvas-white">.env.local</code> and restart to talk to
-              Claude.
+              key to <code className="text-ink">.env.local</code> and restart to talk to Claude.
             </p>
           </GhostCard>
         )}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto rounded-[24px] border border-[rgba(229,229,229,0.06)] bg-[rgba(212,212,212,0.04)] p-4"
+          className="flex-1 overflow-y-auto rounded-[24px] border border-whisper-gray/40 bg-canvas-ice p-5"
         >
           <div className="space-y-3">
             {messages.map((m, i) => (
               <Bubble key={i} role={m.role} text={stripQuickBlocks(m.content)} />
             ))}
-            {streaming && (
-              <Bubble role="assistant" text={stripQuickBlocks(streaming)} streaming />
-            )}
+            {streaming && <Bubble role="assistant" text={stripQuickBlocks(streaming)} streaming />}
             {!bootstrapped && (
-              <p className="font-dm-sans text-[14px] tracking-[0.35px] text-slate-text">
-                Loading…
-              </p>
+              <p className="text-[14px] text-slate">Loading…</p>
             )}
           </div>
         </div>
@@ -229,7 +217,7 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
               <button
                 key={q}
                 onClick={() => handleSend(q)}
-                className="rounded-full border border-ghost-white px-3 py-1.5 font-dm-sans text-[14px] tracking-[0.35px] text-canvas-white transition-colors hover:bg-[rgba(229,229,229,0.06)]"
+                className="rounded-full border border-outline-blue bg-ghost-blue px-3.5 py-1.5 text-[13px] text-outline-blue transition-colors hover:bg-[#cce7fb]"
               >
                 {q}
               </button>
@@ -242,22 +230,20 @@ export function DiscoveryClient({ ownerName, hasAnthropic }: Props) {
             e.preventDefault();
             handleSend(input);
           }}
-          className="mt-3 flex gap-2"
+          className="mt-3 flex gap-2.5"
         >
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={busy ? "Listening…" : "Type your reply…"}
             disabled={busy || finalized}
-            className="flex-1 rounded-[10px] border border-ghost-white bg-transparent px-3 py-2.5 font-dm-sans text-[15px] tracking-[0.4px] text-canvas-white placeholder:text-slate-text outline-none focus:border-canvas-white disabled:opacity-50"
+            className="flex-1 rounded-[10px] border border-whisper-gray bg-canvas-ice px-3 py-2.5 text-[15px] text-ink placeholder:text-whisper-gray outline-none focus:border-outline-blue disabled:opacity-50"
           />
           <Pill type="submit" disabled={busy || finalized || !input.trim()}>
             {busy ? "…" : "Send"}
           </Pill>
         </form>
-        {error && (
-          <p className="mt-2 font-dm-sans text-[14px] tracking-[0.35px] text-[#ff9a8a]">{error}</p>
-        )}
+        {error && <p className="mt-2 text-[13px] text-accent-orange">{error}</p>}
         {finalized && (
           <div className="mt-3 flex items-center gap-2">
             <Ghost onClick={() => refreshState()}>Review what was captured</Ghost>
@@ -288,11 +274,11 @@ function Bubble({
       <div
         className={
           isUser
-            ? "max-w-[80%] rounded-[20px] rounded-br-[8px] bg-canvas-white px-4 py-2.5 text-storm-gray"
-            : "max-w-[85%] rounded-[20px] rounded-bl-[8px] bg-storm-gray px-4 py-2.5 text-ghost-white"
+            ? "max-w-[80%] rounded-[20px] rounded-br-[6px] bg-outline-blue px-4 py-2.5 text-canvas-ice"
+            : "max-w-[85%] rounded-[20px] rounded-bl-[6px] bg-task-card-violet px-4 py-2.5 text-ink"
         }
       >
-        <p className="font-dm-sans whitespace-pre-wrap text-[15px] leading-[1.55] tracking-[0.35px]">
+        <p className="whitespace-pre-wrap text-[15px] leading-[1.55]">
           {text}
           {streaming && <span className="ml-0.5 animate-pulse">▍</span>}
         </p>

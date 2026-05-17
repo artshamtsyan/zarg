@@ -7,15 +7,15 @@ import { welcomeAction, type WelcomeActionState } from "@/lib/actions/welcome";
 const initial: WelcomeActionState = { ok: false };
 
 const inputClass =
-  "mt-2 block w-full rounded-[10px] border border-ghost-white bg-transparent px-3 py-2.5 font-dm-sans text-[16px] tracking-[0.4px] text-canvas-white placeholder:text-slate-text outline-none focus:border-canvas-white";
+  "mt-1.5 block w-full rounded-[10px] border border-whisper-gray bg-canvas-ice px-3 py-2.5 text-[16px] text-ink placeholder:text-whisper-gray outline-none focus:border-outline-blue";
 
 export function WelcomeForm() {
   const [state, formAction, pending] = useActionState(welcomeAction, initial);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-3">
       <label className="block">
-        <span className="font-dm-sans text-[14px] tracking-[0.35px] text-ash-text">Your name</span>
+        <span className="text-[12px] uppercase tracking-[1px] text-slate">Your name</span>
         <input
           name="fullName"
           required
@@ -26,7 +26,7 @@ export function WelcomeForm() {
         />
       </label>
       <label className="block">
-        <span className="font-dm-sans text-[14px] tracking-[0.35px] text-ash-text">Business name</span>
+        <span className="text-[12px] uppercase tracking-[1px] text-slate">Business name</span>
         <input
           name="businessName"
           required
@@ -36,21 +36,19 @@ export function WelcomeForm() {
         />
       </label>
       <label className="block">
-        <span className="font-dm-sans text-[14px] tracking-[0.35px] text-ash-text">
-          Timezone
-        </span>
+        <span className="text-[12px] uppercase tracking-[1px] text-slate">Timezone</span>
         <input
           name="timezone"
           defaultValue="Asia/Yerevan"
           placeholder="Asia/Yerevan"
           className={inputClass}
         />
-        <span className="font-dm-sans mt-1 block text-[13px] tracking-[0.35px] text-slate-text">
+        <span className="mt-1 block text-[12px] text-slate">
           IANA name. Used for the daily briefing time.
         </span>
       </label>
       {state.error && (
-        <p className="font-dm-sans text-[14px] tracking-[0.35px] text-[#ff9a8a]">{state.error}</p>
+        <p className="text-[13px] text-accent-orange">{state.error}</p>
       )}
       <Pill type="submit" size="lg" disabled={pending} className="w-full">
         {pending ? "Setting things up…" : "Start discovery"}

@@ -22,25 +22,27 @@ export function FloatingPillBar({ items }: FloatingPillBarProps) {
       <div
         className={cn(
           "flex items-center gap-1 rounded-full",
-          "bg-[rgba(10,10,10,0.7)] backdrop-blur-[10px]",
-          "border border-[rgba(229,229,229,0.08)]",
-          "p-1"
+          "bg-canvas-ice/85 backdrop-blur",
+          "border border-whisper-gray/50",
+          "p-1 shadow-[0_6px_24px_rgba(38,38,38,0.06)]"
         )}
       >
         {items.map((item) => {
-          const active = pathname === item.href || (item.href !== "/dashboard" && pathname?.startsWith(item.href));
+          const active =
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname?.startsWith(item.href));
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2 rounded-full px-4 py-2 text-[14px] tracking-[0.35px] transition-colors",
+                "flex items-center gap-2 rounded-full px-4 py-2 text-[13px] transition-colors",
                 active
-                  ? "bg-canvas-white text-storm-gray"
-                  : "text-ghost-white hover:bg-[rgba(229,229,229,0.08)]"
+                  ? "bg-ghost-blue text-outline-blue"
+                  : "text-slate hover:bg-ghost-blue/60 hover:text-outline-blue"
               )}
             >
-              <span className="inline-flex h-4 w-4 items-center justify-center opacity-90">{item.icon}</span>
+              <span className="inline-flex h-4 w-4 items-center justify-center">{item.icon}</span>
               <span className="font-medium">{item.label}</span>
             </Link>
           );

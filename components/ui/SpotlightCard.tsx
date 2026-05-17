@@ -1,24 +1,21 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-interface SpotlightCardProps {
+// Spotlight/feature card — light surface with a thin whisper-gray border for soft separation.
+export function SpotlightCard({
+  children,
+  className,
+}: {
   children: ReactNode;
   className?: string;
-}
-
-export function SpotlightCard({ children, className }: SpotlightCardProps) {
+}) {
   return (
     <div
       className={cn(
-        "relative rounded-[42px] px-7 py-6",
-        "bg-[rgba(0,0,0,0.2)] backdrop-blur-[4px]",
-        "border border-[rgba(229,229,229,0.08)]",
+        "rounded-[24px] bg-canvas-ice px-7 py-6 md:px-8 md:py-7",
+        "border border-whisper-gray/40",
         className
       )}
-      style={{
-        boxShadow:
-          "rgba(255, 255, 255, 0.02) 0px 3px 4.5px, rgba(0, 0, 0, 0.04) 0px 10px 8px, rgba(0, 0, 0, 0.1) 0px 4px 3px",
-      }}
     >
       {children}
     </div>

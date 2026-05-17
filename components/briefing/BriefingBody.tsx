@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Renders the briefing markdown body with the Dimension type system.
+ * Renders the briefing markdown body in the Aboard type system.
  * Supports the limited markdown subset the generator emits:
  *   - **Heading**
  *   - • bullet
@@ -14,7 +14,6 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
   let i = 0;
 
   const inlineFormat = (text: string, key: string | number) => {
-    // Bold via **...** → <strong>
     const parts: React.ReactNode[] = [];
     let last = 0;
     const re = /\*\*(.+?)\*\*/g;
@@ -22,7 +21,7 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
     while ((m = re.exec(text))) {
       if (m.index > last) parts.push(text.slice(last, m.index));
       parts.push(
-        <strong key={`b-${key}-${m.index}`} className="font-geist text-canvas-white">
+        <strong key={`b-${key}-${m.index}`} className="font-semibold text-ink">
           {m[1]}
         </strong>
       );
@@ -38,13 +37,12 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
       i++;
       continue;
     }
-    // Heading-like line: **Heading**
     const headingMatch = line.match(/^\s*\*\*(.+?)\*\*\s*$/);
     if (headingMatch) {
       out.push(
         <p
           key={`h-${i}`}
-          className="font-dm-sans mt-4 text-[12px] uppercase tracking-[1.8px] text-ash-text first:mt-0"
+          className="mt-5 text-[11px] uppercase tracking-[1.5px] text-slate first:mt-0"
         >
           {headingMatch[1]}
         </p>
@@ -52,7 +50,6 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
       i++;
       continue;
     }
-    // Bullet list
     if (/^\s*[•\-]\s/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\s*[•\-]\s/.test(lines[i])) {
@@ -60,10 +57,10 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
         i++;
       }
       out.push(
-        <ul key={`u-${i}`} className="mt-1 space-y-1.5">
+        <ul key={`u-${i}`} className="mt-1.5 space-y-1.5">
           {items.map((it, idx) => (
-            <li key={idx} className="flex gap-2 font-dm-sans text-[15px] leading-[1.5] tracking-[0.35px] text-ghost-white">
-              <span className="text-slate-text">•</span>
+            <li key={idx} className="flex gap-2 text-[15px] leading-[1.5] text-ink/85">
+              <span className="text-whisper-gray">•</span>
               <span>{inlineFormat(it, idx)}</span>
             </li>
           ))}
@@ -71,7 +68,6 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
       );
       continue;
     }
-    // Numbered list
     if (/^\s*\d+\.\s/.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\s*\d+\.\s/.test(lines[i])) {
@@ -79,10 +75,10 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
         i++;
       }
       out.push(
-        <ol key={`o-${i}`} className="mt-1 space-y-1.5">
+        <ol key={`o-${i}`} className="mt-1.5 space-y-1.5">
           {items.map((it, idx) => (
-            <li key={idx} className="flex gap-3 font-dm-sans text-[15px] leading-[1.5] tracking-[0.35px] text-ghost-white">
-              <span className="font-geist text-ash-text">{idx + 1}.</span>
+            <li key={idx} className="flex gap-3 text-[15px] leading-[1.5] text-ink/85">
+              <span className="font-semibold text-outline-blue">{idx + 1}.</span>
               <span>{inlineFormat(it, idx)}</span>
             </li>
           ))}
@@ -90,12 +86,8 @@ export function BriefingBody({ markdown, className }: { markdown: string; classN
       );
       continue;
     }
-    // Default paragraph
     out.push(
-      <p
-        key={`p-${i}`}
-        className="mt-3 font-dm-sans text-[15px] leading-[1.5] tracking-[0.35px] text-ghost-white first:mt-0"
-      >
+      <p key={`p-${i}`} className="mt-3 text-[15px] leading-[1.5] text-ink first:mt-0">
         {inlineFormat(line, i)}
       </p>
     );

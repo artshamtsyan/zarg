@@ -3,8 +3,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth/auth";
 import { getDb, schema } from "@/lib/db/client";
 import { desc, eq } from "drizzle-orm";
-import { SpotlightCard } from "@/components/ui/SpotlightCard";
-import { GhostCard } from "@/components/ui/GhostCard";
+import { TaskCard } from "@/components/ui/TaskCard";
 import { PillLink } from "@/components/ui/Pill";
 import { BriefingBody } from "@/components/briefing/BriefingBody";
 
@@ -34,24 +33,24 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <main className="bg-aura-radial min-h-screen">
+    <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-4xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
-          <Link href="/" className="font-geist text-[20px] font-semibold tracking-tight text-canvas-white">
+          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
             Zarg
           </Link>
-          <span className="font-dm-sans text-[14px] tracking-[0.35px] text-slate-text">
+          <span className="text-[12px] text-slate">
             {tenant?.name} · {session.user.email}
           </span>
         </header>
 
-        <SpotlightCard className="mt-10">
-          <div className="flex items-baseline justify-between">
+        <TaskCard tone="sky" className="mt-10 p-7 md:p-9">
+          <div className="flex items-baseline justify-between gap-4">
             <div>
-              <p className="font-dm-sans text-[13px] uppercase tracking-[1.5px] text-ash-text">
+              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">
                 {latestBriefing ? "Latest briefing" : "Briefing"}
               </p>
-              <h1 className="font-geist mt-1 text-[26px] tracking-tight text-canvas-white">
+              <h1 className="mt-1 text-[26px] font-semibold tracking-heading-sm text-ink">
                 {latestBriefing ? latestBriefing.forDate : "Generate today's briefing"}
               </h1>
             </div>
@@ -62,28 +61,31 @@ export default async function DashboardPage() {
               <BriefingBody markdown={latestBriefing.bodyMarkdown} />
             </div>
           ) : (
-            <p className="mt-4 font-dm-sans text-[15px] tracking-[0.35px] text-ghost-white">
-              No briefings yet. Open the briefings page and tap <em>Generate now</em> — Zarg will read your
-              data and write today's ops summary.
+            <p className="mt-4 text-[15px] leading-[1.5] text-ink/80">
+              No briefings yet. Open the briefings page and tap <em>Generate now</em> — Zarg will read
+              your data and write today's ops summary.
             </p>
           )}
-        </SpotlightCard>
+        </TaskCard>
 
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
           <DashboardLink
             href="/dashboard/data"
+            tone="pink"
             label="Data"
             value={`${counts[0]} people · ${counts[1]} events`}
             footer="Demo dataset Zarg seeded for you"
           />
           <DashboardLink
             href="/dashboard/telegram"
+            tone="violet"
             label="Telegram"
             value="Link your bot"
             footer="Daily briefing comes to your phone"
           />
           <DashboardLink
             href="/dashboard/profile"
+            tone="yellow"
             label="Business profile"
             value="What Zarg knows"
             footer="Edit anything from discovery"
@@ -94,14 +96,26 @@ export default async function DashboardPage() {
   );
 }
 
-function DashboardLink({ href, label, value, footer }: { href: string; label: string; value: string; footer: string }) {
+function DashboardLink({
+  href,
+  tone,
+  label,
+  value,
+  footer,
+}: {
+  href: string;
+  tone: "pink" | "violet" | "yellow" | "mint" | "sky";
+  label: string;
+  value: string;
+  footer: string;
+}) {
   return (
     <Link href={href} className="block">
-      <GhostCard className="h-full p-5 transition-colors hover:bg-[rgba(229,229,229,0.08)]">
-        <p className="font-dm-sans text-[12px] uppercase tracking-[1.8px] text-ash-text">{label}</p>
-        <p className="font-geist mt-2 text-[18px] tracking-tight text-canvas-white">{value}</p>
-        <p className="font-dm-sans mt-2 text-[13px] tracking-[0.35px] text-slate-text">{footer}</p>
-      </GhostCard>
+      <TaskCard tone={tone} className="h-full p-6 transition-transform hover:-translate-y-0.5">
+        <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">{label}</p>
+        <p className="mt-2 text-[18px] font-semibold text-ink">{value}</p>
+        <p className="mt-2 text-[13px] text-ink/70">{footer}</p>
+      </TaskCard>
     </Link>
   );
 }

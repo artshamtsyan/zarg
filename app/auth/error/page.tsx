@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import { TaskCard } from "@/components/ui/TaskCard";
 import { PillLink } from "@/components/ui/Pill";
 
 export const metadata = { title: "Sign-in error · Zarg" };
@@ -19,28 +19,23 @@ export default async function AuthErrorPage({ searchParams }: ErrorPageProps) {
   const { error } = await searchParams;
   const message = (error && messages[error]) || messages.Default;
   return (
-    <main className="bg-aura-radial min-h-screen">
+    <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-geist text-[20px] font-semibold tracking-tight text-canvas-white"
-          >
+          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
             Zarg
           </Link>
         </header>
 
-        <SpotlightCard className="mt-16">
-          <h1 className="font-geist text-[32px] leading-[1.14] text-canvas-white">
+        <TaskCard tone="yellow" className="mt-16 p-8">
+          <h1 className="text-[28px] font-semibold leading-[1.2] tracking-heading-sm text-ink">
             Couldn't sign you in.
           </h1>
-          <p className="font-dm-sans mt-3 text-[16px] leading-[1.55] tracking-[0.4px] text-ghost-white">
-            {message}
-          </p>
+          <p className="mt-3 text-[15px] leading-[1.5] text-ink/80">{message}</p>
           <div className="mt-8">
             <PillLink href="/signup">Try again</PillLink>
           </div>
-        </SpotlightCard>
+        </TaskCard>
       </div>
     </main>
   );

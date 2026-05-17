@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 type Size = "sm" | "md" | "lg";
 
 const sizeClasses: Record<Size, string> = {
-  sm: "px-3 py-1.5 text-[14px] tracking-[0.35px]",
-  md: "px-4 py-2 text-[15px] tracking-[0.4px]",
-  lg: "px-5 py-2.5 text-[16px] tracking-[0.4px]",
+  sm: "px-4 py-1.5 text-[13px]",
+  md: "px-5 py-2 text-[14px]",
+  lg: "px-6 py-2.5 text-[15px]",
 };
 
 interface PillBaseProps {
@@ -18,6 +18,7 @@ interface PillBaseProps {
 
 type PillButtonProps = PillBaseProps & ButtonHTMLAttributes<HTMLButtonElement>;
 
+// Filled Mild Button — Ghost Blue bg + Outline Blue text/border. Primary CTA.
 export const Pill = forwardRef<HTMLButtonElement, PillButtonProps>(function Pill(
   { size = "md", className, children, ...rest },
   ref
@@ -27,9 +28,10 @@ export const Pill = forwardRef<HTMLButtonElement, PillButtonProps>(function Pill
       ref={ref}
       className={cn(
         "inline-flex items-center justify-center font-medium",
-        "bg-canvas-white text-storm-gray",
+        "bg-ghost-blue text-outline-blue",
+        "border border-outline-blue",
         "rounded-full",
-        "transition-opacity hover:opacity-90 active:opacity-80",
+        "transition-colors hover:bg-[#cce7fb] active:bg-[#bcdef9]",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         sizeClasses[size],
         className
@@ -49,9 +51,10 @@ interface PillLinkProps extends PillBaseProps {
 export function PillLink({ href, external, size = "md", className, children }: PillLinkProps) {
   const classes = cn(
     "inline-flex items-center justify-center font-medium",
-    "bg-canvas-white text-storm-gray",
+    "bg-ghost-blue text-outline-blue",
+    "border border-outline-blue",
     "rounded-full",
-    "transition-opacity hover:opacity-90 active:opacity-80",
+    "transition-colors hover:bg-[#cce7fb] active:bg-[#bcdef9]",
     sizeClasses[size],
     className
   );

@@ -13,18 +13,13 @@ export default async function OnboardingPage() {
   if (!session.user.tenantId) redirect("/welcome");
 
   return (
-    <main className="bg-aura-radial min-h-screen">
+    <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-geist text-[20px] font-semibold tracking-tight text-canvas-white"
-          >
+          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
             Zarg
           </Link>
-          <span className="font-dm-sans text-[13px] tracking-[0.35px] text-slate-text">
-            Discovery · {session.user.email}
-          </span>
+          <span className="text-[12px] text-slate">Discovery · {session.user.email}</span>
         </header>
 
         <DiscoveryClient

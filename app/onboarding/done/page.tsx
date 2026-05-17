@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth/auth";
-import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import { TaskCard } from "@/components/ui/TaskCard";
 import { PillLink } from "@/components/ui/Pill";
 import { loadProfile } from "@/lib/db/discovery";
 import { getDb, schema } from "@/lib/db/client";
@@ -30,25 +30,22 @@ export default async function OnboardingDonePage() {
   const profile = await loadProfile(session.user.tenantId);
 
   return (
-    <main className="bg-aura-radial min-h-screen">
+    <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-geist text-[20px] font-semibold tracking-tight text-canvas-white"
-          >
+          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
             Zarg
           </Link>
         </header>
 
-        <SpotlightCard className="mt-12">
-          <p className="font-dm-sans text-[14px] uppercase tracking-[2px] text-ash-text">
+        <TaskCard tone="mint" className="mt-12 p-8 md:p-10">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full bg-canvas-ice px-3 py-1 text-[12px] text-outline-blue">
             Discovery complete
-          </p>
-          <h1 className="font-geist mt-3 text-[32px] leading-[1.14] text-canvas-white">
+          </span>
+          <h1 className="mt-4 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
             {tenant?.name} — operations spec
           </h1>
-          <p className="font-dm-sans mt-3 text-[15px] leading-[1.55] tracking-[0.35px] text-ghost-white">
+          <p className="mt-3 text-[15px] leading-[1.5] text-ink/80">
             Here's what Zarg learned. You can edit any of this later from the dashboard.
           </p>
 
@@ -68,7 +65,7 @@ export default async function OnboardingDonePage() {
               Open the dashboard
             </PillLink>
           </div>
-        </SpotlightCard>
+        </TaskCard>
       </div>
     </main>
   );
@@ -76,11 +73,9 @@ export default async function OnboardingDonePage() {
 
 function Block({ title, body }: { title: string; body: string }) {
   return (
-    <div>
-      <h2 className="font-geist text-[16px] tracking-tight text-canvas-white">{title}</h2>
-      <pre className="mt-2 whitespace-pre-wrap font-dm-sans text-[14px] leading-[1.55] tracking-[0.35px] text-ghost-white">
-        {body}
-      </pre>
+    <div className="rounded-[16px] bg-canvas-ice p-4">
+      <h2 className="text-[15px] font-semibold text-ink">{title}</h2>
+      <pre className="mt-2 whitespace-pre-wrap text-[13px] leading-[1.55] text-ink/80">{body}</pre>
     </div>
   );
 }
