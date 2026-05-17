@@ -5,14 +5,24 @@ import { getDb, schema } from "@/lib/db/client";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const DEV_ONLY = process.env.NODE_ENV !== "production" || process.env.AUTH_DEV_BACKDOOR === "true";
+function devEnabled(): boolean {
+  // Evaluated per-request so toggling AUTH_DEV_BACKDOOR via Vercel env doesn't
+  // require a code change — only a redeploy to pick up the env var.
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.AUTH_DEV_BACKDOOR === "true"
+  );
+}
 
 // GET /api/dev/sign-in?email=...&name=...&business=...
 // Creates the user/tenant/profile if missing, creates a session, sets the cookie,
 // then redirects to /onboarding (or /welcome / /dashboard depending on state).
 export async function GET(req: Request) {
-  if (!DEV_ONLY) {
-    return new Response("Dev sign-in disabled in production.", { status: 403 });
+  if (!devEnabled()) {
+    return new Response(
+      "Dev sign-in disabled in production. Set AUTH_DEV_BACKDOOR=true and redeploy.",
+      { status: 403 }
+    );
   }
 
   const url = new URL(req.url);
