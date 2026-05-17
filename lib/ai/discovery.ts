@@ -63,6 +63,12 @@ interface BuildMessagesArgs {
   userTurn: string;
 }
 
+interface StoredToolCall {
+  id?: string;
+  name?: string;
+  input?: Record<string, unknown>;
+}
+
 export function buildMessages({
   tenantName,
   ownerName,
@@ -71,8 +77,6 @@ export function buildMessages({
 }: BuildMessagesArgs): Anthropic.Messages.MessageParam[] {
   const messages: Anthropic.Messages.MessageParam[] = [];
 
-  // Seed the conversation with a bootstrap user note so the first assistant
-  // turn can greet specifically. If history already exists, skip the bootstrap.
   if (history.length === 0) {
     const greetingHint = ownerName
       ? `The owner's name is ${ownerName}. The business they just registered is "${tenantName}".`
@@ -81,16 +85,63 @@ export function buildMessages({
       role: "user",
       content: `${greetingHint}\n\nGreet them warmly by name, then ask the first discovery question.`,
     });
-  } else {
-    for (const m of history) {
-      if (m.role === "tool") continue; // tool results are emitted inline in the assistant turn
-      messages.push({
-        role: m.role,
-        content: m.content,
-      } as Anthropic.Messages.MessageParam);
-    }
-    messages.push({ role: "user", content: userTurn });
+    return messages;
   }
+
+  for (const m of history) {
+    if (m.role === "tool") continue;
+
+    if (m.role === "user") {
+      messages.push({ role: "user", content: m.content });
+      continue;
+    }
+
+    // assistant turn — preserve text AND any tool_use blocks the model
+    // emitted last time, so it doesn't re-invent them every turn.
+    const toolCalls = Array.isArray(m.toolCalls)
+      ? (m.toolCalls as StoredToolCall[]).filter((t) => t.id && t.name)
+      : [];
+
+    type AssistantBlock =
+      | { type: "text"; text: string }
+      | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> };
+
+    const assistantContent: AssistantBlock[] = [];
+    if (m.content && m.content.trim().length > 0) {
+      assistantContent.push({ type: "text", text: m.content });
+    }
+    for (const t of toolCalls) {
+      assistantContent.push({
+        type: "tool_use",
+        id: t.id!,
+        name: t.name!,
+        input: t.input ?? {},
+      });
+    }
+    if (assistantContent.length === 0) continue;
+    messages.push({
+      role: "assistant",
+      content: assistantContent as unknown as Anthropic.Messages.MessageParam["content"],
+    });
+
+    // Pair every tool_use with a synthetic tool_result so the model sees
+    // the call as completed and doesn't try to re-run it.
+    if (toolCalls.length > 0) {
+      messages.push({
+        role: "user",
+        content: toolCalls.map((t) => ({
+          type: "tool_result" as const,
+          tool_use_id: t.id!,
+          content: "ok",
+        })),
+      });
+    }
+  }
+
+  // userTurn is already in `history` (the route persists the user's message
+  // before building messages). Don't append it again — that produces a
+  // duplicate user turn that confuses the model.
+
   return messages;
 }
 
