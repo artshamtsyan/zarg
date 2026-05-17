@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { SignupForm } from "./SignupForm";
 import { TaskCard } from "@/components/ui/TaskCard";
+import { env } from "@/lib/env";
 
 export const metadata = {
   title: "Sign up · Zarg",
 };
 
 export default function SignupPage() {
+  const demoMode = !env.hasResend() && process.env.AUTH_DEV_BACKDOOR === "true";
+
   return (
     <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
@@ -24,10 +27,12 @@ export default function SignupPage() {
             Get your daily briefing.
           </h1>
           <p className="mt-3 text-[15px] leading-[1.5] text-slate">
-            Enter your email. We'll send a magic link. No password.
+            {demoMode
+              ? "Demo mode — type any email and you'll be signed in directly."
+              : "Enter your email. We'll send a magic link. No password."}
           </p>
           <div className="mt-8">
-            <SignupForm />
+            <SignupForm demoMode={demoMode} />
           </div>
           <p className="mt-6 text-[12px] text-whisper-gray">
             By signing up, you agree to be lovely.

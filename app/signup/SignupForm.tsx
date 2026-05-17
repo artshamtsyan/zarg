@@ -6,7 +6,7 @@ import { signupAction, type SignupActionState } from "@/lib/actions/signup";
 
 const initial: SignupActionState = { ok: false };
 
-export function SignupForm() {
+export function SignupForm({ demoMode = false }: { demoMode?: boolean }) {
   const [state, formAction, pending] = useActionState(signupAction, initial);
 
   if (state.ok && state.email) {
@@ -40,7 +40,13 @@ export function SignupForm() {
         <p className="text-[13px] text-accent-orange">{state.error}</p>
       )}
       <Pill type="submit" size="lg" disabled={pending} className="w-full">
-        {pending ? "Sending magic link…" : "Send me a magic link"}
+        {pending
+          ? demoMode
+            ? "Signing you in…"
+            : "Sending magic link…"
+          : demoMode
+            ? "Sign in"
+            : "Send me a magic link"}
       </Pill>
     </form>
   );
