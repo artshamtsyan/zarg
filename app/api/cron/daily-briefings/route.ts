@@ -42,13 +42,11 @@ export async function GET(req: Request) {
   for (const tenant of tenants) {
     try {
       const tz = tenant.timezone || "Asia/Yerevan";
-      const local = formatInTimeZone(nowUtc, tz, "HH:mm");
-      const [hh] = (tenant.briefingLocalTime || "08:00").split(":");
-      const localHour = formatInTimeZone(nowUtc, tz, "HH");
-      if (localHour !== hh) {
-        results.push({ tenantId: tenant.id, skipped: true, localHour, want: hh });
-        continue;
-      }
+
+      // Vercel Hobby fires this once per day, so we process every active
+      // tenant in one pass. The (tenant_id, for_date) unique index on
+      // briefings makes this idempotent — re-running the cron won't
+      // duplicate today's row.
 
       // 1. Age data
       await ageTenantData(tenant.id);
