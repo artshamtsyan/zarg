@@ -2,7 +2,7 @@ import { getAnthropic } from "./anthropic";
 import { env } from "@/lib/env";
 import type { BriefingSnapshot } from "@/lib/db/snapshot";
 
-const BRIEFING_SYSTEM = `You are Zarg writing a small-business owner's daily operations briefing. The owner reads this on Telegram first thing in the morning.
+const BRIEFING_SYSTEM_DAILY = `You are Zarg writing a small-business owner's daily operations briefing. The owner reads this on Telegram first thing in the morning.
 
 Format strictly:
 Good morning, {owner_name}.
@@ -35,6 +35,34 @@ Rules:
 - Keep the whole briefing under 250 words.
 - No preamble, no markdown beyond what's shown above. No code blocks. Plain bullets with "•".
 - Money values: format with the currency code (e.g. "38,000 AMD"), no commas inside the amount if the locale doesn't use them.`;
+
+const BRIEFING_SYSTEM_SUNDAY = `You are Zarg writing a small-business owner's Sunday weekly recap. The owner reads this on Telegram on Sunday evening — a retrospective, not the daily ops view.
+
+Format strictly:
+Good evening, {owner_name}. Here's the week.
+
+**Week in numbers**
+• Revenue this week: {amount} ({comparison to last 7 days if data allows})
+• Attendance: {attended} of {booked} ({rate})
+• New leads this week: {N}
+
+**Highlights**
+• {1–3 plain observations about who showed up, what worked}
+
+**Watch-outs**
+• {1–3 short risks: packages expiring next week, pending payments, no-show trend}
+
+**Three priorities for the week ahead**
+1. {strategic, weekly-scope action — not just one client}
+2. {action}
+3. {action}
+
+Rules:
+- Use the entity vocabulary from the profile.
+- Be retrospective in tone — past tense for the week behind, future tense for the week ahead.
+- Priorities should be week-shaped (renew a cohort of subscriptions, run a referral push) not day-shaped (send a single reminder).
+- Keep the whole recap under 300 words.
+- No preamble. Plain bullets with "•". Numbered list for priorities.`;
 
 interface BuildArgs {
   snapshot: BriefingSnapshot;
@@ -88,15 +116,21 @@ function buildUserPrompt({ snapshot, profile, yesterdayBriefingBody }: BuildArgs
   return lines.join("\n");
 }
 
+function isSundayInTenantTz(t: BriefingSnapshot): boolean {
+  return t.today.weekday === "Sunday";
+}
+
 export async function generateBriefingBody(args: BuildArgs): Promise<string> {
   if (!env.hasAnthropic()) {
     return stubBriefing(args.snapshot);
   }
+  const sunday = isSundayInTenantTz(args.snapshot);
+  const system = sunday ? BRIEFING_SYSTEM_SUNDAY : BRIEFING_SYSTEM_DAILY;
   const client = getAnthropic();
   const res = await client.messages.create({
     model: env.briefingModel(),
-    max_tokens: 800,
-    system: BRIEFING_SYSTEM,
+    max_tokens: sunday ? 1100 : 800,
+    system,
     messages: [{ role: "user", content: buildUserPrompt(args) }],
   });
   for (const block of res.content) {

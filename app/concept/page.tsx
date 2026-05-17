@@ -188,7 +188,7 @@ export default function ConceptPage() {
         <section className="mt-24">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Where we are</p>
           <h2 className="mt-3 text-[28px] font-semibold tracking-heading-sm text-ink sm:text-[32px]">
-            Seven phases, six shipped.
+            Seven phases, all shipped.
           </h2>
 
           <div className="mt-10 space-y-3">
@@ -199,7 +199,7 @@ export default function ConceptPage() {
             <PhaseRow status="done" id="4" title="Daily briefing engine" body="Tenant-aware SQL snapshots (timezone-correct via date-fns-tz). Sonnet generator with strict format. Daily Vercel Cron, idempotent on (tenant_id, for_date). Aging job keeps the synthetic clock alive while owner-logged rows accumulate." />
             <PhaseRow status="done" id="5" title="Self-learning chat" body="/dashboard/learn lets the owner type real events in plain language. Four tools (record_person, record_event, record_booking, record_payment) write owner_logged rows alongside the synthetic baseline. Fuzzy name matching + natural-language time parsing in the tenant's timezone." />
             <PhaseRow status="done" id="6" title="Telegram delivery" body="One shared bot, one-time linking code, MarkdownV2 send helpers, /pause /resume /preview commands, callback queries from inline buttons. Webhook secret verification. Cron fans out daily briefings to every linked owner." />
-            <PhaseRow status="next" id="7" title="Dashboard polish" body="Profile editor, settings (timezone language), bottom FloatingPillBar nav across dashboard routes, focus rings and motion-reduced fallbacks, Sunday weekly recap layered on top of daily." />
+            <PhaseRow status="done" id="7" title="Dashboard polish" body="Bottom FloatingPillBar nav across every dashboard route. Per-field profile editor with JSON validation. Settings page consolidates business basics + timezone + briefing time + pause. Sunday-evening recap variant of the briefing — retrospective tone, week-shaped priorities." />
           </div>
         </section>
 
@@ -239,13 +239,12 @@ export default function ConceptPage() {
 
             <TaskCard tone="pink" className="p-7">
               <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Soon</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">Finish the dashboard</h3>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">Multilingual briefings</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• Profile editor — change anything Zarg learned</li>
-                <li>• Telegram link page with QR code</li>
-                <li>• Settings: timezone, briefing time, pause/resume</li>
-                <li>• Bottom FloatingPillBar nav across all dashboard routes</li>
-                <li>• Sunday weekly recap layered on top of daily</li>
+                <li>• Armenian and Russian variants of the briefing prompts</li>
+                <li>• Tenant `language` already flows through schema + settings</li>
+                <li>• Owner picks their language once; Zarg switches voice on the next briefing</li>
+                <li>• Same goes for discovery and self-learning chats</li>
               </ul>
             </TaskCard>
 
