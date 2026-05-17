@@ -30,8 +30,8 @@ export default function LandingPage() {
         <header className="flex items-center justify-between">
           <span className="text-[20px] font-semibold tracking-tight text-ink">Zarg</span>
           <div className="flex items-center gap-2.5">
-            <GhostLink href="/signup" className="hidden sm:inline-flex">
-              See an example
+            <GhostLink href="/concept" className="hidden sm:inline-flex">
+              How it works
             </GhostLink>
             <PillLink href="/signup">Get your daily briefing</PillLink>
           </div>
@@ -57,7 +57,7 @@ export default function LandingPage() {
               <PillLink href="/signup" size="lg">
                 Get your daily briefing
               </PillLink>
-              <GhostLink href="#how-it-works">How it works</GhostLink>
+              <GhostLink href="/concept">See the concept</GhostLink>
             </div>
             <p className="mt-6 text-[13px] text-slate">Free during the prototype. No credit card.</p>
           </div>
