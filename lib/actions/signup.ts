@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { signIn } from "@/lib/auth/auth";
+import { setSessionCookie } from "@/lib/auth/session-cookie";
 import { getDb, schema } from "@/lib/db/client";
 import { env, serviceStatus } from "@/lib/env";
 
@@ -88,14 +89,7 @@ export async function signupAction(
     });
 
     const cookieStore = await cookies();
-    cookieStore.set({
-      name: "authjs.session-token",
-      value: token,
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      expires,
-    });
+    setSessionCookie({ cookieStore, token, expires });
 
     redirect(user.tenantId ? "/onboarding" : "/welcome");
   }

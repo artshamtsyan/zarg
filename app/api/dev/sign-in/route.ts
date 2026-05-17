@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db/client";
+import { setSessionCookie } from "@/lib/auth/session-cookie";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -92,14 +93,7 @@ export async function GET(req: Request) {
   });
 
   const cookieStore = await cookies();
-  cookieStore.set({
-    name: "authjs.session-token",
-    value: token,
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    expires,
-  });
+  setSessionCookie({ cookieStore, token, expires });
 
   const dest = !user.tenantId ? "/welcome" : "/onboarding";
   return Response.redirect(new URL(dest, url.origin), 302);
