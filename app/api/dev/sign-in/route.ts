@@ -20,6 +20,7 @@ export async function GET(req: Request) {
   const name = url.searchParams.get("name") ?? "Demo Owner";
   const business = url.searchParams.get("business") ?? "Demo Studio";
   const skipWelcome = url.searchParams.get("skipWelcome") === "1";
+  const attachTenantId = url.searchParams.get("tenantId");
 
   const db = getDb();
 
@@ -40,6 +41,15 @@ export async function GET(req: Request) {
       emailVerified: new Date(),
     });
     [user] = await db.select().from(schema.users).where(eq(schema.users.id, id)).limit(1);
+  }
+
+  // Optionally attach to an existing tenant
+  if (attachTenantId && !user.tenantId) {
+    await db
+      .update(schema.users)
+      .set({ tenantId: attachTenantId, fullName: name, name })
+      .where(eq(schema.users.id, user.id));
+    user.tenantId = attachTenantId;
   }
 
   // Optionally create tenant
