@@ -47,11 +47,33 @@ interface ProfileFieldUpdate {
 
 const SCALAR_FIELDS = new Set(["name", "domain", "location"]);
 
+// Normalize a value for a jsonb column. Wrap plain strings so they survive
+// later merges without being spread-as-array.
+function normalizeJsonbValue(field: string, value: unknown): object {
+  if (typeof value === "string") {
+    if (field === "goals" || field === "kpis") return { summary: value };
+    return { summary: value };
+  }
+  if (Array.isArray(value)) {
+    return { items: value };
+  }
+  if (value && typeof value === "object") return value as object;
+  return { value };
+}
+
+function safeObject(maybe: unknown): Record<string, unknown> {
+  if (maybe && typeof maybe === "object" && !Array.isArray(maybe)) {
+    return maybe as Record<string, unknown>;
+  }
+  return {};
+}
+
 export async function applyProfileField(tenantId: string, update: ProfileFieldUpdate) {
   const db = getDb();
   if (SCALAR_FIELDS.has(update.field)) {
     // name/domain/location live on tenants, not business_profiles
-    const value = typeof update.value === "string" ? update.value : JSON.stringify(update.value);
+    const value =
+      typeof update.value === "string" ? update.value : JSON.stringify(update.value);
     if (update.field === "name") {
       await db
         .update(schema.tenants)
@@ -73,39 +95,54 @@ export async function applyProfileField(tenantId: string, update: ProfileFieldUp
   if (update.field === "current_state") {
     await db
       .update(schema.businessProfiles)
-      .set({ currentState: update.value as object })
+      .set({ currentState: normalizeJsonbValue("current_state", update.value) })
       .where(eq(schema.businessProfiles.tenantId, tenantId));
     return;
   }
   if (update.field === "goals") {
     await db
       .update(schema.businessProfiles)
-      .set({ goals: update.value as object })
+      .set({ goals: normalizeJsonbValue("goals", update.value) })
       .where(eq(schema.businessProfiles.tenantId, tenantId));
     return;
   }
   if (update.field === "kpis") {
     await db
       .update(schema.businessProfiles)
-      .set({ kpis: update.value as object })
+      .set({ kpis: normalizeJsonbValue("kpis", update.value) })
       .where(eq(schema.businessProfiles.tenantId, tenantId));
     return;
   }
   if (update.field === "entities") {
     await db
       .update(schema.businessProfiles)
-      .set({ entities: update.value as object })
+      .set({ entities: normalizeJsonbValue("entities", update.value) })
       .where(eq(schema.businessProfiles.tenantId, tenantId));
     return;
   }
   // Unknown field — drop into current_state as a sub-key for safety.
+  // CRITICAL: only spread the existing value if it's already an object;
+  // otherwise we'd spread a string and produce per-character numeric keys.
   const existing = await loadProfile(tenantId);
-  const merged = { ...((existing?.currentState as object) ?? {}), [update.field]: update.value };
+  const existingObj = safeObject(existing?.currentState);
+  const merged = { ...existingObj, [update.field]: update.value };
   await db
     .update(schema.businessProfiles)
     .set({ currentState: merged })
     .where(eq(schema.businessProfiles.tenantId, tenantId));
 }
+
+// Normalize a workflow name for similarity comparison.
+function workflowKey(wf: Record<string, unknown>): string {
+  const name = typeof wf.name === "string" ? wf.name : "";
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const MAX_WORKFLOWS = 4;
 
 export async function appendWorkflow(
   tenantId: string,
@@ -113,10 +150,28 @@ export async function appendWorkflow(
 ) {
   const db = getDb();
   const existing = await loadProfile(tenantId);
-  const list = Array.isArray(existing?.keyWorkflows) ? (existing.keyWorkflows as unknown[]) : [];
+  const list = Array.isArray(existing?.keyWorkflows)
+    ? (existing.keyWorkflows as Array<Record<string, unknown>>)
+    : [];
+
+  const incomingKey = workflowKey(workflow);
+
+  // Hard cap so the model can't fill the profile with near-duplicates.
+  if (list.length >= MAX_WORKFLOWS) return;
+
+  // Replace if a near-duplicate already exists; append otherwise.
+  const existingIdx = list.findIndex((w) => workflowKey(w) === incomingKey);
+  let next: Array<Record<string, unknown>>;
+  if (existingIdx >= 0) {
+    next = list.slice();
+    next[existingIdx] = workflow;
+  } else {
+    next = [...list, workflow];
+  }
+
   await db
     .update(schema.businessProfiles)
-    .set({ keyWorkflows: [...list, workflow] })
+    .set({ keyWorkflows: next })
     .where(eq(schema.businessProfiles.tenantId, tenantId));
 }
 
