@@ -1,4 +1,5 @@
 import { PillLink } from "@/components/ui/Pill";
+import { LogoMark } from "@/components/ui/Logo";
 import { GhostLink } from "@/components/ui/Ghost";
 import { TaskCard } from "@/components/ui/TaskCard";
 
@@ -28,7 +29,7 @@ export default function LandingPage() {
     <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
-          <span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span>
+          <span className="inline-flex items-center gap-2"><LogoMark className="h-5 w-5 text-outline-blue" /><span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span></span>
           <div className="flex items-center gap-2.5">
             <GhostLink href="/concept" className="hidden sm:inline-flex">
               How it works

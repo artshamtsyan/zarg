@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { LogoMark } from "@/components/ui/Logo";
 import Link from "next/link";
 import { auth } from "@/lib/auth/auth";
 import { getDb, schema } from "@/lib/db/client";
@@ -36,8 +37,9 @@ export default async function DashboardPage() {
     <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-4xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
-          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            StarUp
+          <Link href="/" className="inline-flex items-center gap-2">
+            <LogoMark className="h-5 w-5 text-outline-blue" />
+            <span className="inline-flex items-center gap-2"><LogoMark className="h-5 w-5 text-outline-blue" /><span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span></span>
           </Link>
           <span className="text-[12px] text-slate">
             {tenant?.name} · {session.user.email}

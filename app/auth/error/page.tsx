@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/ui/Logo";
 import { TaskCard } from "@/components/ui/TaskCard";
 import { PillLink } from "@/components/ui/Pill";
 
@@ -22,8 +23,9 @@ export default async function AuthErrorPage({ searchParams }: ErrorPageProps) {
     <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
-          <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            StarUp
+          <Link href="/" className="inline-flex items-center gap-2">
+            <LogoMark className="h-5 w-5 text-outline-blue" />
+            <span className="inline-flex items-center gap-2"><LogoMark className="h-5 w-5 text-outline-blue" /><span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span></span>
           </Link>
         </header>
 
