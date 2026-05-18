@@ -111,12 +111,45 @@ Cost guard wrapper around every LLM call: `chargeTenant(tenantId, kind, fn)` che
 - One of them has uploaded an Excel customer list
 - At least 3 have linked an iCal calendar
 - Daily briefings firing reliably
-- Stripe MRR > $0
+- Paylink MRR > 0 AMD
 - No runaway LLM bills
 
 ## Risks I'm watching
 
-- Stripe always takes 1–2 days more than planned.
+- Paylink has no webhooks visible in the swagger — we poll `/Payment/GetPaymentByOrderId` and own retry logic. Cron must handle gracefully when Paylink is slow.
 - iCal edge cases (recurring events with exceptions, all-day, multi-timezone) eat time.
 - Resend DNS verification can stall on customer-side DNS configuration.
 - Cost ceiling has to be tested carefully — bug here means either runaway spend or blocked briefings.
+
+## Post-MVP agent roadmap (v3 → v5)
+
+Decision (2026-05-18): MVP runs ONE coherent agent — the Owner agent
+(discovery + self-learning + briefing + dashboard chat). No multi-agent
+framework adoption. After the pilot wraps, layer additional agents
+sequentially:
+
+**v3 — Customer Agent (Telegram, EN/HY)** — 4 weeks
+- Per-tenant student-facing Telegram entry point (deep-link payload
+  routes the same shared bot to the right tenant)
+- Booking flow: list classes, book, cancel, reschedule
+- Package-balance query
+- Reminder send 24h + 2h before class
+- Feedback collection after class
+- Armenian system prompt variant; tenant.language drives switching
+- Shares the Owner agent's tenant data (same Postgres rows)
+
+**v4 — Marketing & Sales Agent** — 3 weeks
+- Weekly thematic post draft to the studio's Telegram channel
+- Owner approves before send
+- Themes inferred from profile + this week's data
+- Per-tenant Telegram channel in tenant_integrations
+- Manual Instagram caption variant (no IG API)
+
+**v5 — Payment & Accounting Agent** — 3 weeks
+- Quarterly accountant export (PDF + Excel)
+- Paylink reconciliation: matches platform payments table to Paylink
+  charge history, flags discrepancies
+- Tax-ready statement with VAT lines if owner configures rate
+- Per-payment receipt generator
+
+Total: full four-agent product roughly month 4 from today.

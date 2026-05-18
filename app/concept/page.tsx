@@ -229,48 +229,48 @@ export default function ConceptPage() {
 
           <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
             <TaskCard tone="sky" className="p-7">
-              <p className="text-[11px] uppercase tracking-[1.5px] text-outline-blue">Near term</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">Sunday weekly recap</h3>
+              <p className="text-[11px] uppercase tracking-[1.5px] text-outline-blue">v3 — 4 weeks post-pilot</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">Customer Agent (Telegram, EN/HY)</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• On top of the daily, a Sunday-evening retrospective</li>
-                <li>• Money this week vs last, attendance trend, package churn risk</li>
-                <li>• 3 actions for the upcoming week, not the next day</li>
-                <li>• Lower frequency = denser signal, lower fatigue</li>
+                <li>• Students book classes, check package balance, cancel — all in Telegram</li>
+                <li>• Speaks English or Armenian per the tenant&apos;s setting</li>
+                <li>• 24h + 2h reminders before each class</li>
+                <li>• Post-class feedback collection</li>
+                <li>• Shares the same tenant data as the Owner agent</li>
               </ul>
             </TaskCard>
 
             <TaskCard tone="pink" className="p-7">
-              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Soon</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">Multilingual briefings</h3>
+              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">v4 — 3 weeks after v3</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">Marketing &amp; Sales Agent</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• Armenian and Russian variants of the briefing prompts</li>
-                <li>• Tenant `language` already flows through schema + settings</li>
-                <li>• Owner picks their language once; StarUp switches voice on the next briefing</li>
-                <li>• Same goes for discovery and self-learning chats</li>
+                <li>• Weekly thematic post drafted from your data + goals</li>
+                <li>• Owner approves before send</li>
+                <li>• Goes to the studio&apos;s Telegram channel</li>
+                <li>• Optional Instagram caption variant (manual copy)</li>
               </ul>
             </TaskCard>
 
             <TaskCard tone="violet" className="p-7">
-              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Later</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">More self-learning channels</h3>
+              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">v5 — 3 weeks after v4</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">Payment &amp; Accounting Agent</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• Stripe webhook → owner_logged payments automatically</li>
-                <li>• Google Calendar / iCal sync → owner_logged events</li>
-                <li>• Forward a WhatsApp / Telegram chat snippet → parsed bookings</li>
-                <li>• Sheets sync for owners who already track in one</li>
-                <li>• Synthetic baseline retired entirely once real signal is dense</li>
+                <li>• Quarterly export (PDF + Excel) ready for the accountant</li>
+                <li>• Paylink reconciliation against the platform&apos;s payment ledger</li>
+                <li>• VAT-ready statement if you set the rate</li>
+                <li>• Per-payment receipt generator</li>
               </ul>
             </TaskCard>
 
             <TaskCard tone="mint" className="p-7">
-              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Vision</p>
-              <h3 className="mt-2 text-[20px] font-semibold text-ink">Agentic platform, not just a briefing</h3>
+              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Vision — full four-agent product, month 4</p>
+              <h3 className="mt-2 text-[20px] font-semibold text-ink">One platform, four agents, one tenant model</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• Owner replies "send the renewal nudge" — StarUp drafts and sends</li>
-                <li>• Schedule changes through chat: "move Wed 19:00 to 18:00"</li>
-                <li>• Multi-language (Armenian / Russian / English) per tenant</li>
-                <li>• Owner-side voice on Telegram via STT/TTS</li>
-                <li>• Marketplace of vertical templates (yoga, salon, tutoring, clinic)</li>
+                <li>• Owner agent — daily briefing + ops (here today)</li>
+                <li>• Customer agent — Telegram booking + reminders (v3)</li>
+                <li>• Marketing agent — weekly thematic posts (v4)</li>
+                <li>• Accounting agent — quarterly exports + reconciliation (v5)</li>
+                <li>• All four share the same Postgres rows — no framework dependency</li>
               </ul>
             </TaskCard>
           </div>
