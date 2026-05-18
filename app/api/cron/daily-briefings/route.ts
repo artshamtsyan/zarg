@@ -53,8 +53,9 @@ export async function GET(req: Request) {
       const snapshot = await buildSnapshot(tenant.id, owner?.fullName ?? null);
       const profile = await loadProfile(tenant.id);
 
-      // 3. Generate body
+      // 3. Generate body (cost guard will throw BudgetExceeded if tenant is over)
       const body = await generateBriefingBody({
+        tenantId: tenant.id,
         snapshot,
         profile: { entities: profile?.entities, goals: profile?.goals },
       });

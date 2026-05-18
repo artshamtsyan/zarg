@@ -48,11 +48,23 @@ export async function POST(req: Request) {
     .where(and(eq(schema.briefings.tenantId, tenantId), eq(schema.briefings.forDate, yesterdayDate)))
     .limit(1);
 
-  const body = await generateBriefingBody({
-    snapshot,
-    profile: { entities: profile?.entities, goals: profile?.goals },
-    yesterdayBriefingBody: previousBriefing?.bodyMarkdown ?? null,
-  });
+  let body: string;
+  try {
+    body = await generateBriefingBody({
+      tenantId,
+      snapshot,
+      profile: { entities: profile?.entities, goals: profile?.goals },
+      yesterdayBriefingBody: previousBriefing?.bodyMarkdown ?? null,
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "BudgetExceededError") {
+      return Response.json(
+        { ok: false, error: "budget_exceeded", message: err.message },
+        { status: 429 }
+      );
+    }
+    throw err;
+  }
 
   // Persist (idempotent on tenant_id + for_date)
   const [existing] = await db

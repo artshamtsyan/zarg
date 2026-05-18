@@ -182,6 +182,7 @@ async function handlePreview(chatId: number, tenantId: string, ownerName: string
     const snapshot = await buildSnapshot(tenantId, ownerName);
     const profile = await loadProfile(tenantId);
     const body = await generateBriefingBody({
+      tenantId,
       snapshot,
       profile: { entities: profile?.entities, goals: profile?.goals },
     });
@@ -272,6 +273,7 @@ async function regenerateBriefingForTenant({
     const snapshot = await buildSnapshot(tenantId, ownerName);
     const profile = await loadProfile(tenantId);
     const body = await generateBriefingBody({
+      tenantId,
       snapshot,
       profile: { entities: profile?.entities, goals: profile?.goals },
     });

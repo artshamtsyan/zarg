@@ -1,6 +1,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { getAnthropic } from "./anthropic";
 import { LEARNING_TOOLS } from "./learning-tools";
+import { assertWithinBudget, recordUsage } from "./cost-guard";
 import { env } from "@/lib/env";
 
 const SYSTEM = `You are StarUp's self-learning agent. The owner narrates what's happening in their business — who came to class, who paid, what got booked — and you record it as real data using your tools.
@@ -33,6 +34,7 @@ interface BuildArgs {
   history: LearningMessage[];
   userTurn: string;
   tenantContext: { name: string; tz: string; domain: string };
+  tenantId?: string;
 }
 
 function buildSystem(args: BuildArgs): Anthropic.Messages.MessageCreateParams["system"] {
@@ -91,9 +93,13 @@ function buildMessages(args: BuildArgs): Anthropic.Messages.MessageParam[] {
 export async function* runLearningStream(
   args: BuildArgs
 ): AsyncGenerator<LearningStreamEvent, void, void> {
+  if (args.tenantId) {
+    await assertWithinBudget(args.tenantId);
+  }
   const client = getAnthropic();
+  const model = env.discoveryModel();
   const stream = client.messages.stream({
-    model: env.discoveryModel(),
+    model,
     max_tokens: 1500,
     system: buildSystem(args),
     tools: LEARNING_TOOLS,
@@ -135,6 +141,21 @@ export async function* runLearningStream(
       }
     } else if (evt.type === "message_stop") {
       yield { type: "stop", reason: "end" };
+    }
+  }
+
+  if (args.tenantId) {
+    try {
+      const finalMessage = await stream.finalMessage();
+      await recordUsage({
+        tenantId: args.tenantId,
+        kind: "learn",
+        model,
+        tokensIn: finalMessage.usage?.input_tokens ?? 0,
+        tokensOut: finalMessage.usage?.output_tokens ?? 0,
+      });
+    } catch (err) {
+      console.warn("[learning] usage record failed:", err);
     }
   }
 }

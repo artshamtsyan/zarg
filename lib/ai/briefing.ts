@@ -1,5 +1,6 @@
 import { getAnthropic } from "./anthropic";
 import { env } from "@/lib/env";
+import { assertWithinBudget, recordUsage } from "./cost-guard";
 import type { BriefingSnapshot } from "@/lib/db/snapshot";
 
 const BRIEFING_SYSTEM_DAILY = `You are StarUp writing a small-business owner's daily operations briefing. The owner reads this on Telegram first thing in the morning.
@@ -71,6 +72,7 @@ interface BuildArgs {
     goals?: unknown;
   };
   yesterdayBriefingBody?: string | null;
+  tenantId?: string;
 }
 
 function moneyDisplay(minor: number, currency: string): string {
@@ -124,15 +126,29 @@ export async function generateBriefingBody(args: BuildArgs): Promise<string> {
   if (!env.hasAnthropic()) {
     return stubBriefing(args.snapshot);
   }
+  if (args.tenantId) {
+    await assertWithinBudget(args.tenantId);
+  }
   const sunday = isSundayInTenantTz(args.snapshot);
   const system = sunday ? BRIEFING_SYSTEM_SUNDAY : BRIEFING_SYSTEM_DAILY;
   const client = getAnthropic();
+  const model = env.briefingModel();
   const res = await client.messages.create({
-    model: env.briefingModel(),
+    model,
     max_tokens: sunday ? 1100 : 800,
     system,
     messages: [{ role: "user", content: buildUserPrompt(args) }],
   });
+  if (args.tenantId) {
+    await recordUsage({
+      tenantId: args.tenantId,
+      kind: "briefing",
+      model,
+      tokensIn: res.usage?.input_tokens ?? 0,
+      tokensOut: res.usage?.output_tokens ?? 0,
+      metadata: { sunday },
+    });
+  }
   for (const block of res.content) {
     if (block.type === "text") return block.text;
   }

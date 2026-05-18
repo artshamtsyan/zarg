@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type Anthropic from "@anthropic-ai/sdk";
 import { getAnthropic } from "./anthropic";
+import { assertWithinBudget, recordUsage } from "./cost-guard";
 import { env } from "@/lib/env";
 
 // ─── Output schema (validated post-LLM) ──────────────────────────────────────
@@ -164,6 +165,7 @@ interface BuildArgs {
     goals?: unknown;
     keyWorkflows?: unknown;
   };
+  tenantId?: string;
 }
 
 const SEED_SYSTEM = `You generate compact, realistic synthetic operational datasets for small businesses. Output must fit within strict token limits — keep notes/fields short.
@@ -196,15 +198,28 @@ Generate the 4-week seed dataset for this tenant. Reference people and events by
 }
 
 async function generateRaw(args: BuildArgs): Promise<unknown> {
+  if (args.tenantId) {
+    await assertWithinBudget(args.tenantId);
+  }
   const client = getAnthropic();
+  const model = env.briefingModel();
   const res = await client.messages.create({
-    model: env.briefingModel(),
+    model,
     max_tokens: 16000,
     system: SEED_SYSTEM,
     tools: [SEED_TOOL],
     tool_choice: { type: "tool", name: "emit_seed_data" },
     messages: [{ role: "user", content: buildUserPrompt(args) }],
   });
+  if (args.tenantId) {
+    await recordUsage({
+      tenantId: args.tenantId,
+      kind: "seed",
+      model,
+      tokensIn: res.usage?.input_tokens ?? 0,
+      tokensOut: res.usage?.output_tokens ?? 0,
+    });
+  }
   for (const block of res.content) {
     if (block.type === "tool_use" && block.name === "emit_seed_data") {
       return block.input;

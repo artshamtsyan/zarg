@@ -51,6 +51,7 @@ export async function POST(req: Request) {
       };
       try {
         for await (const evt of runLearningStream({
+          tenantId,
           history,
           userTurn,
           tenantContext: {
@@ -70,9 +71,15 @@ export async function POST(req: Request) {
         }
       } catch (err) {
         console.error("[learn] stream error", err);
+        const isBudget = err instanceof Error && err.name === "BudgetExceededError";
         send({
           type: "error",
-          message: err instanceof Error ? err.message : "Stream error",
+          message: isBudget
+            ? "You've hit today's AI usage limit. Try again tomorrow — or upgrade your plan."
+            : err instanceof Error
+              ? err.message
+              : "Stream error",
+          code: isBudget ? "budget_exceeded" : "stream_error",
         });
       }
       controller.close();

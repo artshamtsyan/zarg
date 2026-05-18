@@ -34,6 +34,7 @@ export async function POST() {
   let source: "llm" | "fallback" = "fallback";
   try {
     const seed = await generateSeed({
+      tenantId,
       tenant: {
         name: tenant.name,
         domain: tenant.domain,

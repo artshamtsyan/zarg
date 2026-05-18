@@ -2,6 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { getAnthropic } from "./anthropic";
 import { DISCOVERY_TOOLS } from "./discovery-tools";
 import { DISCOVERY_SKILL } from "./discovery-skill";
+import { assertWithinBudget, recordUsage } from "./cost-guard";
 import { env } from "@/lib/env";
 
 function getDiscoverySkill(): string {
@@ -61,6 +62,7 @@ interface BuildMessagesArgs {
   ownerName: string | null;
   history: PersistedMessage[];
   userTurn: string;
+  tenantId?: string;
 }
 
 interface StoredToolCall {
@@ -159,9 +161,13 @@ export interface DiscoveryStreamEvent {
 export async function* runDiscoveryStream(
   args: BuildMessagesArgs
 ): AsyncGenerator<DiscoveryStreamEvent, void, void> {
+  if (args.tenantId) {
+    await assertWithinBudget(args.tenantId);
+  }
   const client = getAnthropic();
+  const model = env.discoveryModel();
   const stream = client.messages.stream({
-    model: env.discoveryModel(),
+    model,
     max_tokens: 4000,
     system: buildSystemBlocks() as Anthropic.Messages.MessageCreateParams["system"],
     tools: DISCOVERY_TOOLS,
@@ -206,6 +212,23 @@ export async function* runDiscoveryStream(
       }
     } else if (evt.type === "message_stop") {
       yield { type: "stop", reason: "end_of_message" };
+    }
+  }
+
+  // Record usage after the stream completes, using the final message's
+  // usage stats. Best effort — failure to record shouldn't break the turn.
+  if (args.tenantId) {
+    try {
+      const finalMessage = await stream.finalMessage();
+      await recordUsage({
+        tenantId: args.tenantId,
+        kind: "discovery",
+        model,
+        tokensIn: finalMessage.usage?.input_tokens ?? 0,
+        tokensOut: finalMessage.usage?.output_tokens ?? 0,
+      });
+    } catch (err) {
+      console.warn("[discovery] usage record failed:", err);
     }
   }
 }

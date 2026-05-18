@@ -219,9 +219,27 @@ export const briefings = pgTable(
   })
 );
 
+// ─── Usage / cost tracking ───────────────────────────────────────────────────
+
+export const usageEvents = pgTable("usage_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(), // "discovery" | "seed" | "briefing" | "learn"
+  model: text("model"),
+  tokensIn: integer("tokens_in").notNull().default(0),
+  tokensOut: integer("tokens_out").notNull().default(0),
+  costMinor: integer("cost_minor").notNull().default(0), // cents of USD
+  currency: varchar("currency", { length: 3 }).notNull().default("USD"),
+  metadata: jsonb("metadata"),
+  occurredAt: timestamp("occurred_at", { mode: "date" }).notNull().defaultNow(),
+});
+
 export type Tenant = typeof tenants.$inferSelect;
 export type NewTenant = typeof tenants.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type BusinessProfile = typeof businessProfiles.$inferSelect;
 export type DiscoveryMessage = typeof discoveryMessages.$inferSelect;
 export type Briefing = typeof briefings.$inferSelect;
+export type UsageEvent = typeof usageEvents.$inferSelect;
