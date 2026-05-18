@@ -16,8 +16,8 @@ interface MagicLinkParams {
 }
 
 export async function sendMagicLinkEmail({ to, url }: MagicLinkParams) {
-  const subject = "Sign in to Zarg";
-  const text = `Sign in to Zarg by opening this link:\n\n${url}\n\nThe link is valid for 24 hours.\n\nIf you didn't request this, you can ignore this email.`;
+  const subject = "Sign in to StarUp";
+  const text = `Sign in to StarUp by opening this link:\n\n${url}\n\nThe link is valid for 24 hours.\n\nIf you didn't request this, you can ignore this email.`;
   const html = renderHtml({ url });
   const { error } = await client().emails.send({
     from: env.resendFrom(),
@@ -37,7 +37,7 @@ function renderHtml({ url }: { url: string }) {
     <tr><td align="center" style="padding:48px 24px;">
       <table role="presentation" width="100%" style="max-width:480px;text-align:left;">
         <tr><td style="padding-bottom:32px;">
-          <span style="font-family:'Geist',-apple-system,system-ui,sans-serif;font-size:24px;color:#ffffff;font-weight:600;letter-spacing:-0.5px;">Zarg</span>
+          <span style="font-family:'Geist',-apple-system,system-ui,sans-serif;font-size:24px;color:#ffffff;font-weight:600;letter-spacing:-0.5px;">StarUp</span>
         </td></tr>
         <tr><td style="padding-bottom:16px;">
           <h1 style="margin:0;font-family:'Geist',-apple-system,system-ui,sans-serif;font-size:32px;line-height:1.15;color:#ffffff;font-weight:600;">Your sign-in link</h1>
@@ -46,7 +46,7 @@ function renderHtml({ url }: { url: string }) {
           <p style="margin:0;font-size:16px;line-height:1.55;color:#e5e5e5;">Click the button below to sign in. The link is valid for 24 hours.</p>
         </td></tr>
         <tr><td style="padding-bottom:40px;">
-          <a href="${url}" style="display:inline-block;background:#ffffff;color:#161616;text-decoration:none;font-weight:500;padding:12px 20px;border-radius:9999px;font-size:15px;">Sign in to Zarg</a>
+          <a href="${url}" style="display:inline-block;background:#ffffff;color:#161616;text-decoration:none;font-weight:500;padding:12px 20px;border-radius:9999px;font-size:15px;">Sign in to StarUp</a>
         </td></tr>
         <tr><td style="padding-top:24px;border-top:1px solid rgba(229,229,229,0.08);">
           <p style="margin:0;font-size:13px;color:#686868;">If you didn't request this, you can safely ignore it.</p>

@@ -29,7 +29,7 @@ export const env = {
 
   telegramBotToken: () => need("TELEGRAM_BOT_TOKEN"),
   telegramWebhookSecret: () => need("TELEGRAM_WEBHOOK_SECRET"),
-  telegramBotUsername: () => get("TELEGRAM_BOT_USERNAME") ?? "ZargBot",
+  telegramBotUsername: () => get("TELEGRAM_BOT_USERNAME") ?? "StarUpBot",
   hasTelegram: () => Boolean(get("TELEGRAM_BOT_TOKEN") && get("TELEGRAM_WEBHOOK_SECRET")),
 };
 

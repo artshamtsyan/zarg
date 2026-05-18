@@ -140,7 +140,7 @@ export function LearnChat() {
       >
         {messages.length === 0 && !streaming && (
           <p className="text-[14px] text-slate">
-            Type anything that happened — Zarg will record it. Try one of the examples on the right.
+            Type anything that happened — StarUp will record it. Try one of the examples on the right.
           </p>
         )}
         <div className="space-y-3">
@@ -172,7 +172,7 @@ export function LearnChat() {
           className="flex-1 rounded-[10px] border border-whisper-gray bg-canvas-ice px-3 py-2.5 text-[15px] text-ink placeholder:text-whisper-gray outline-none focus:border-outline-blue disabled:opacity-50"
         />
         <Pill type="submit" disabled={busy || !input.trim()}>
-          {busy ? "…" : "Tell Zarg"}
+          {busy ? "…" : "Tell StarUp"}
         </Pill>
       </form>
       {error && <p className="mt-2 text-[13px] text-accent-orange">{error}</p>}

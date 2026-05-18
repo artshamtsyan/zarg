@@ -4,7 +4,7 @@ import { TaskCard } from "@/components/ui/TaskCard";
 import { env } from "@/lib/env";
 
 export const metadata = {
-  title: "Sign up · Zarg",
+  title: "Sign up · StarUp",
 };
 
 export default function SignupPage() {
@@ -15,7 +15,7 @@ export default function SignupPage() {
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/" className="text-[13px] text-slate hover:text-ink">
             Back

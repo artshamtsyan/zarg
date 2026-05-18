@@ -13,7 +13,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-// ─── NextAuth tables (with Zarg extensions on `user`) ────────────────────────
+// ─── NextAuth tables (with StarUp extensions on `user`) ────────────────────────
 
 export const users = pgTable("user", {
   id: text("id")
@@ -24,7 +24,7 @@ export const users = pgTable("user", {
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
 
-  // Zarg extensions — one user is one tenant owner
+  // StarUp extensions — one user is one tenant owner
   fullName: text("full_name"),
   tenantId: uuid("tenant_id"),
   telegramChatId: text("telegram_chat_id").unique(),
@@ -72,7 +72,7 @@ export const verificationTokens = pgTable(
   (vt) => ({ compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }) })
 );
 
-// ─── Zarg core: tenants and the discovery profile ────────────────────────────
+// ─── StarUp core: tenants and the discovery profile ────────────────────────────
 
 export const tenantStatus = ["onboarding", "active", "paused"] as const;
 export type TenantStatus = (typeof tenantStatus)[number];

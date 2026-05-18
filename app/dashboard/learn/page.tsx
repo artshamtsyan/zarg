@@ -7,7 +7,7 @@ import { TaskCard } from "@/components/ui/TaskCard";
 import { GhostCard } from "@/components/ui/GhostCard";
 import { LearnChat } from "./LearnChat";
 
-export const metadata = { title: "Teach Zarg · Zarg" };
+export const metadata = { title: "Teach StarUp · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function LearnPage() {
@@ -29,7 +29,7 @@ export default async function LearnPage() {
       <div className="mx-auto max-w-4xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard
@@ -39,10 +39,10 @@ export default async function LearnPage() {
         <div className="mt-8">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Self-learning</p>
           <h1 className="mt-2 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
-            Tell Zarg what happened.
+            Tell StarUp what happened.
           </h1>
           <p className="mt-3 max-w-2xl text-[15px] leading-[1.5] text-slate">
-            Type what's going on in your studio in plain language. Zarg will record real people,
+            Type what's going on in your studio in plain language. StarUp will record real people,
             classes, bookings, and payments — and the next briefing will be grounded in this real
             data instead of the synthetic baseline.
           </p>
@@ -53,7 +53,7 @@ export default async function LearnPage() {
 
           <aside className="space-y-4">
             <TaskCard tone="mint" className="p-5">
-              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">What Zarg already knows from you</p>
+              <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">What StarUp already knows from you</p>
               <ul className="mt-4 space-y-2 text-[15px] text-ink">
                 <li className="flex items-center justify-between">
                   <span>Clients added</span>

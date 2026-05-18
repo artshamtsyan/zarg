@@ -8,7 +8,7 @@ function getDiscoverySkill(): string {
   return DISCOVERY_SKILL;
 }
 
-const SYSTEM_PREAMBLE = `You are Zarg's discovery agent. You are talking to a small-business owner who just signed up.
+const SYSTEM_PREAMBLE = `You are StarUp's discovery agent. You are talking to a small-business owner who just signed up.
 
 Your goal is to run a SHORT, high-signal conversation (target 6-8 turns total — never more than 10) and end by calling finalize_profile.
 
@@ -221,7 +221,7 @@ export async function* runDiscoveryStubStream({
   const lines: string[] =
     turn === 0
       ? [
-          `Hi ${ownerName ?? "there"} — welcome to Zarg.`,
+          `Hi ${ownerName ?? "there"} — welcome to StarUp.`,
           ``,
           `I'm going to ask a handful of short questions about how ${tenantName} runs today, then I'll build your operations profile and we'll set up the daily briefing.`,
           ``,

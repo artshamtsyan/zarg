@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth/auth";
 import { TaskCard } from "@/components/ui/TaskCard";
 import { WelcomeForm } from "./WelcomeForm";
 
-export const metadata = { title: "Welcome · Zarg" };
+export const metadata = { title: "Welcome · StarUp" };
 
 export default async function WelcomePage() {
   const session = await auth();
@@ -16,7 +16,7 @@ export default async function WelcomePage() {
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <span className="text-[13px] text-slate">{session.user.email}</span>
         </header>

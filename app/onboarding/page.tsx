@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth/auth";
 import { DiscoveryClient } from "./DiscoveryClient";
 import { env } from "@/lib/env";
 
-export const metadata = { title: "Discovery · Zarg" };
+export const metadata = { title: "Discovery · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <span className="text-[12px] text-slate">Discovery · {session.user.email}</span>
         </header>

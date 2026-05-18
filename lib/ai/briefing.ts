@@ -2,7 +2,7 @@ import { getAnthropic } from "./anthropic";
 import { env } from "@/lib/env";
 import type { BriefingSnapshot } from "@/lib/db/snapshot";
 
-const BRIEFING_SYSTEM_DAILY = `You are Zarg writing a small-business owner's daily operations briefing. The owner reads this on Telegram first thing in the morning.
+const BRIEFING_SYSTEM_DAILY = `You are StarUp writing a small-business owner's daily operations briefing. The owner reads this on Telegram first thing in the morning.
 
 Format strictly:
 Good morning, {owner_name}.
@@ -36,7 +36,7 @@ Rules:
 - No preamble, no markdown beyond what's shown above. No code blocks. Plain bullets with "•".
 - Money values: format with the currency code (e.g. "38,000 AMD"), no commas inside the amount if the locale doesn't use them.`;
 
-const BRIEFING_SYSTEM_SUNDAY = `You are Zarg writing a small-business owner's Sunday weekly recap. The owner reads this on Telegram on Sunday evening — a retrospective, not the daily ops view.
+const BRIEFING_SYSTEM_SUNDAY = `You are StarUp writing a small-business owner's Sunday weekly recap. The owner reads this on Telegram on Sunday evening — a retrospective, not the daily ops view.
 
 Format strictly:
 Good evening, {owner_name}. Here's the week.

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TaskCard } from "@/components/ui/TaskCard";
 
-export const metadata = { title: "Check your email · Zarg" };
+export const metadata = { title: "Check your email · StarUp" };
 
 export default function VerifyRequestPage() {
   return (
@@ -9,7 +9,7 @@ export default function VerifyRequestPage() {
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
         </header>
 

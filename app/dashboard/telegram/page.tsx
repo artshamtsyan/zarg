@@ -8,7 +8,7 @@ import { TaskCard } from "@/components/ui/TaskCard";
 import { GhostCard } from "@/components/ui/GhostCard";
 import { TelegramPanel } from "./TelegramPanel";
 
-export const metadata = { title: "Telegram · Zarg" };
+export const metadata = { title: "Telegram · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function TelegramPage() {
@@ -36,7 +36,7 @@ export default async function TelegramPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard

@@ -27,7 +27,7 @@ export async function GET(req: Request) {
   }
 
   const url = new URL(req.url);
-  const email = (url.searchParams.get("email") ?? "demo@zarg.test").toLowerCase();
+  const email = (url.searchParams.get("email") ?? "demo@starup.test").toLowerCase();
   const name = url.searchParams.get("name") ?? "Demo Owner";
   const business = url.searchParams.get("business") ?? "Demo Studio";
   const skipWelcome = url.searchParams.get("skipWelcome") === "1";

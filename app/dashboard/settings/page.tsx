@@ -7,7 +7,7 @@ import { TaskCard } from "@/components/ui/TaskCard";
 import { GhostCard } from "@/components/ui/GhostCard";
 import { SettingsForm } from "./SettingsForm";
 
-export const metadata = { title: "Settings · Zarg" };
+export const metadata = { title: "Settings · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
@@ -27,7 +27,7 @@ export default async function SettingsPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard
@@ -37,7 +37,7 @@ export default async function SettingsPage() {
         <div className="mt-8">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Settings</p>
           <h1 className="mt-2 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
-            How Zarg runs for you.
+            How StarUp runs for you.
           </h1>
           <p className="mt-3 max-w-2xl text-[15px] leading-[1.5] text-slate">
             Business basics, timezone, and when the daily briefing should land.

@@ -8,7 +8,7 @@ import { GhostCard } from "@/components/ui/GhostCard";
 import { BriefingBody } from "@/components/briefing/BriefingBody";
 import { PreviewButton } from "./PreviewButton";
 
-export const metadata = { title: "Briefings · Zarg" };
+export const metadata = { title: "Briefings · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function BriefingsPage() {
@@ -33,7 +33,7 @@ export default async function BriefingsPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard
@@ -75,7 +75,7 @@ export default async function BriefingsPage() {
           <h2 className="text-[20px] font-semibold text-ink">Earlier briefings</h2>
           {earlier.length === 0 ? (
             <p className="mt-3 text-[13px] text-slate">
-              No earlier briefings yet — they'll appear here once Zarg sends one each day.
+              No earlier briefings yet — they'll appear here once StarUp sends one each day.
             </p>
           ) : (
             <div className="mt-4 space-y-3">

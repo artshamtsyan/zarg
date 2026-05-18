@@ -5,7 +5,7 @@ import { getDb, schema } from "@/lib/db/client";
 import { and, desc, eq } from "drizzle-orm";
 import { GhostCard } from "@/components/ui/GhostCard";
 
-export const metadata = { title: "Demo data · Zarg" };
+export const metadata = { title: "Demo data · StarUp" };
 export const dynamic = "force-dynamic";
 
 function formatDate(d: Date | null): string {
@@ -58,7 +58,7 @@ export default async function DataPage() {
       <div className="mx-auto max-w-5xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard
@@ -72,7 +72,7 @@ export default async function DataPage() {
           </span>
           <span className="inline-flex items-center gap-2 rounded-full border border-outline-blue bg-ghost-blue px-3 py-1 text-[11px] uppercase tracking-[1.5px] text-outline-blue">
             <span className="h-1.5 w-1.5 rounded-full bg-outline-blue" />
-            you taught Zarg
+            you taught StarUp
           </span>
         </div>
 
@@ -80,7 +80,7 @@ export default async function DataPage() {
           Operational dataset
         </h1>
         <p className="mt-2 max-w-2xl text-[15px] leading-[1.5] text-slate">
-          A synthetic 4-week baseline gives your dashboard a head start. Every row you teach Zarg
+          A synthetic 4-week baseline gives your dashboard a head start. Every row you teach StarUp
           on <Link href="/dashboard/learn" className="text-outline-blue underline underline-offset-2">/dashboard/learn</Link> lands here in real time and gradually replaces the
           synthetic noise.
         </p>
@@ -88,7 +88,7 @@ export default async function DataPage() {
         {empty && (
           <GhostCard className="mt-8 p-5">
             <p className="text-[15px] text-ink">
-              No data yet. Finish discovery first — Zarg seeds your dataset when you click{" "}
+              No data yet. Finish discovery first — StarUp seeds your dataset when you click{" "}
               <em>Looks good — let&apos;s go</em>.
             </p>
           </GhostCard>

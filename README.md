@@ -1,42 +1,56 @@
-# Zarg
+# StarUp
 
-Daily ops briefing for any small business — delivered via Telegram, powered by an agentic discovery and a small synthetic data layer per tenant.
+Daily ops briefing for any small business — delivered via Telegram, powered by an agentic discovery, a self-learning chat, and synthetic data that fades as real data accumulates.
 
-See `docs/superpowers/specs/2026-05-16-zarg-design.md` for the full design and `docs/superpowers/plans/2026-05-16-zarg-implementation-plan.md` for the build phases.
+- Live (during pilot): https://starup.am
+- Repo history: `docs/superpowers/specs/` and `docs/superpowers/plans/` — design spec from the Zarg prototype phase, the implementation plan, and the current Phase 2 MVP plan.
 
 ## Status
 
-**Phase 0 — Foundation.** Landing page and design system are in. Phases 1–6 are queued (auth, discovery, seed, briefings, Telegram, dashboard).
+**Phase 2 — MVP build.** Production hardening + Excel upload + iCal sync + Stripe subscriptions, targeting 5 paying pilots in 4 weeks. See `docs/superpowers/plans/2026-05-18-phase-2-mvp-plan.md` for the week-by-week.
 
 ## Stack
 
 - Next.js 15 (App Router) + React 19 + TypeScript
-- Tailwind v4 with the "Dimension" dark command-center system (see `docs/design/dimension-style.md`)
-- Postgres via Drizzle ORM
-- NextAuth v5 (email magic links via Resend)
-- Anthropic SDK (Opus 4.7 for discovery, Sonnet 4.6 for briefings)
+- Tailwind v4 with the Aboard light pastel system (see `docs/design/aboard-style.md`)
+- Postgres via Drizzle ORM, hosted on Neon
+- NextAuth v5 (email magic links via Resend on `starup.am`)
+- Anthropic SDK (Opus 4.7 for discovery + learning, Sonnet 4.6 for briefings + seed)
 - Telegram Bot API via `node-telegram-bot-api` (webhook mode)
+- Stripe for subscriptions (starting Week 3)
+- Vercel Pro for hosting + cron
 
 ## Run locally
 
 ```bash
-pnpm install         # or npm install
+npm install
 cp .env.example .env.local
-# fill in DATABASE_URL at minimum for Phase 1+; Phase 0 runs without it
-pnpm dev
+# fill in DATABASE_URL, AUTH_SECRET, ANTHROPIC_API_KEY at minimum
+npm run db:migrate
+npm run dev
 ```
 
 Open http://localhost:3000.
 
 ## Env vars
 
-See `.env.example`. Minimums per phase:
+See `.env.example`. Required for full operation:
 
-| Phase | Required |
+| Variable | Purpose |
 | --- | --- |
-| 0 (landing) | none |
-| 1 (auth + DB) | `DATABASE_URL`, `AUTH_SECRET`, `RESEND_API_KEY`, `RESEND_FROM` |
-| 2 (discovery) | + `ANTHROPIC_API_KEY` |
-| 3 (seed) | (same as 2) |
-| 4 (briefings) | (same as 2) |
-| 5 (Telegram) | + `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_BOT_USERNAME`, public HTTPS URL for webhook. Run `pnpm tg:webhook` and `pnpm tg:commands` once after first deploy. |
+| `DATABASE_URL` | Neon Postgres connection string |
+| `AUTH_SECRET` | NextAuth session signing key (`openssl rand -base64 32`) |
+| `AUTH_URL` / `APP_URL` | Public URL of the deployment |
+| `RESEND_API_KEY` + `RESEND_FROM` | Magic-link email sender on starup.am |
+| `ANTHROPIC_API_KEY` | Discovery, learning, briefing, seed |
+| `TELEGRAM_BOT_TOKEN` + `TELEGRAM_WEBHOOK_SECRET` + `TELEGRAM_BOT_USERNAME` | Daily briefing DM |
+| `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` + `STRIPE_PRICE_ID` | Subscriptions (Phase 2) |
+| `CRON_SECRET` | Locks the cron endpoints to Vercel's scheduled invocations |
+
+## Scripts
+
+```bash
+npm run db:migrate         # apply pending Drizzle migrations
+npm run tg:webhook         # register Telegram webhook + secret
+npm run tg:commands        # set /preview /pause /resume autocomplete
+```

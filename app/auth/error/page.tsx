@@ -2,7 +2,7 @@ import Link from "next/link";
 import { TaskCard } from "@/components/ui/TaskCard";
 import { PillLink } from "@/components/ui/Pill";
 
-export const metadata = { title: "Sign-in error · Zarg" };
+export const metadata = { title: "Sign-in error · StarUp" };
 
 interface ErrorPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -23,7 +23,7 @@ export default async function AuthErrorPage({ searchParams }: ErrorPageProps) {
       <div className="mx-auto max-w-md px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
         </header>
 

@@ -7,7 +7,7 @@ import { TaskCard } from "@/components/ui/TaskCard";
 import { PillLink } from "@/components/ui/Pill";
 import { BriefingBody } from "@/components/briefing/BriefingBody";
 
-export const metadata = { title: "Dashboard · Zarg" };
+export const metadata = { title: "Dashboard · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
@@ -37,7 +37,7 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-4xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <span className="text-[12px] text-slate">
             {tenant?.name} · {session.user.email}
@@ -62,7 +62,7 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <p className="mt-4 text-[15px] leading-[1.5] text-ink/80">
-              No briefings yet. Open the briefings page and tap <em>Generate now</em> — Zarg will read
+              No briefings yet. Open the briefings page and tap <em>Generate now</em> — StarUp will read
               your data and write today's ops summary.
             </p>
           )}
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
             href="/dashboard/learn"
             tone="mint"
             label="Self-learning"
-            value="Tell Zarg what happened"
+            value="Tell StarUp what happened"
             footer="Real bookings, payments, attendance — typed in plain language"
           />
           <DashboardLink
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
             tone="pink"
             label="Data"
             value={`${counts[0]} people · ${counts[1]} events`}
-            footer="Synthetic baseline + everything you've taught Zarg"
+            footer="Synthetic baseline + everything you've taught StarUp"
           />
         </div>
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
             href="/dashboard/profile"
             tone="yellow"
             label="Business profile"
-            value="What Zarg knows"
+            value="What StarUp knows"
             footer="Edit anything from discovery"
           />
         </div>

@@ -3,7 +3,7 @@ import { getAnthropic } from "./anthropic";
 import { LEARNING_TOOLS } from "./learning-tools";
 import { env } from "@/lib/env";
 
-const SYSTEM = `You are Zarg's self-learning agent. The owner narrates what's happening in their business — who came to class, who paid, what got booked — and you record it as real data using your tools.
+const SYSTEM = `You are StarUp's self-learning agent. The owner narrates what's happening in their business — who came to class, who paid, what got booked — and you record it as real data using your tools.
 
 Rules:
 - Listen. If the owner tells you something concrete and unambiguous, record it WITH TOOLS in the same turn. If something is ambiguous (vague names, unclear timing), ask one quick clarifying question.

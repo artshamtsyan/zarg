@@ -7,7 +7,7 @@ import { TaskCard } from "@/components/ui/TaskCard";
 import { GhostCard } from "@/components/ui/GhostCard";
 import { ProfileEditor } from "./ProfileEditor";
 
-export const metadata = { title: "Business profile · Zarg" };
+export const metadata = { title: "Business profile · StarUp" };
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
@@ -32,7 +32,7 @@ export default async function ProfilePage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
             Dashboard
@@ -42,7 +42,7 @@ export default async function ProfilePage() {
         <div className="mt-8">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Business profile</p>
           <h1 className="mt-2 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
-            What Zarg knows about you.
+            What StarUp knows about you.
           </h1>
           <p className="mt-3 max-w-2xl text-[15px] leading-[1.5] text-slate">
             Everything captured during discovery — edit any field, save, and the next briefing

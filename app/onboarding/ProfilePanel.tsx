@@ -89,7 +89,7 @@ export function ProfilePanel({ tenant, profile, finalized }: Props) {
           </span>
         </div>
         <p className="mt-1 text-[12px] text-slate">
-          Fields fill in as Zarg learns about your business.
+          Fields fill in as StarUp learns about your business.
         </p>
         <div className="mt-4 divide-y divide-whisper-gray/30">
           <Row label="Name" value={tenant?.name} />

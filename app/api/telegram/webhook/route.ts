@@ -79,7 +79,7 @@ async function handleMessage(msg: TgMessage) {
   if (/^\/start(@\w+)?\s*$/i.test(text)) {
     return sendPlainText(
       msg.chat.id,
-      `Welcome to Zarg.\n\nThis bot is linked from your dashboard. Sign in at ${env.appUrl}/signup and follow the Telegram link there to receive your daily briefing.`
+      `Welcome to StarUp.\n\nThis bot is linked from your dashboard. Sign in at ${env.appUrl}/signup and follow the Telegram link there to receive your daily briefing.`
     );
   }
 

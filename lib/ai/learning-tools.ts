@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 
-// The owner narrates real events; Zarg writes them as real (owner_logged)
+// The owner narrates real events; StarUp writes them as real (owner_logged)
 // rows. Names are the only identifier — the server resolves them to
 // existing rows via fuzzy match when possible.
 

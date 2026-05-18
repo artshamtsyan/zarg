@@ -4,9 +4,9 @@ import { PillLink } from "@/components/ui/Pill";
 import { GhostLink } from "@/components/ui/Ghost";
 
 export const metadata = {
-  title: "How Zarg works — concept & architecture",
+  title: "How StarUp works — concept & architecture",
   description:
-    "A visual tour of the Zarg prototype: what it does, how it's built, and what's next.",
+    "A visual tour of the StarUp prototype: what it does, how it's built, and what's next.",
 };
 
 export default function ConceptPage() {
@@ -15,7 +15,7 @@ export default function ConceptPage() {
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
           <div className="flex items-center gap-2.5">
             <GhostLink href="/">Home</GhostLink>
@@ -29,7 +29,7 @@ export default function ConceptPage() {
             Concept · Architecture · Roadmap
           </span>
           <h1 className="mt-5 text-[44px] font-semibold leading-[1.05] tracking-heading text-ink sm:text-[64px] sm:leading-[1.0] sm:tracking-display">
-            How Zarg turns a 10-minute
+            How StarUp turns a 10-minute
             <br />
             chat into a daily ops briefing.
           </h1>
@@ -69,7 +69,7 @@ export default function ConceptPage() {
                 On finalize, Sonnet generates a coherent synthetic baseline so the dashboard isn't
                 empty — 15–30 locale-appropriate clients, recurring classes across the past and
                 next two weeks, bookings, payments, packages. From day one, owners type real
-                events in plain language and Zarg writes real rows alongside — gradually replacing
+                events in plain language and StarUp writes real rows alongside — gradually replacing
                 the baseline with the actual studio.
               </p>
             </TaskCard>
@@ -222,7 +222,7 @@ export default function ConceptPage() {
         <section className="mt-24">
           <p className="text-[11px] uppercase tracking-[1.8px] text-slate">Next steps</p>
           <h2 className="mt-3 text-[28px] font-semibold tracking-heading-sm text-ink sm:text-[32px]">
-            Where Zarg is heading.
+            Where StarUp is heading.
           </h2>
 
           <div className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -243,7 +243,7 @@ export default function ConceptPage() {
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
                 <li>• Armenian and Russian variants of the briefing prompts</li>
                 <li>• Tenant `language` already flows through schema + settings</li>
-                <li>• Owner picks their language once; Zarg switches voice on the next briefing</li>
+                <li>• Owner picks their language once; StarUp switches voice on the next briefing</li>
                 <li>• Same goes for discovery and self-learning chats</li>
               </ul>
             </TaskCard>
@@ -264,7 +264,7 @@ export default function ConceptPage() {
               <p className="text-[11px] uppercase tracking-[1.5px] text-ink/60">Vision</p>
               <h3 className="mt-2 text-[20px] font-semibold text-ink">Agentic platform, not just a briefing</h3>
               <ul className="mt-4 space-y-1.5 text-[14px] leading-[1.55] text-ink/85">
-                <li>• Owner replies "send the renewal nudge" — Zarg drafts and sends</li>
+                <li>• Owner replies "send the renewal nudge" — StarUp drafts and sends</li>
                 <li>• Schedule changes through chat: "move Wed 19:00 to 18:00"</li>
                 <li>• Multi-language (Armenian / Russian / English) per tenant</li>
                 <li>• Owner-side voice on Telegram via STT/TTS</li>
@@ -297,7 +297,7 @@ export default function ConceptPage() {
 
         <footer className="mt-24 border-t border-whisper-gray/40 pt-8">
           <p className="text-[13px] text-slate">
-            Zarg · A DINNO prototype · Built in 2026 · Designed with the Aboard light pastel system
+            StarUp · A DINNO prototype · Built in 2026 · Designed with the Aboard light pastel system
           </p>
         </footer>
       </div>
@@ -494,7 +494,7 @@ function ArchitectureDiagram() {
           Telegram Bot API
         </text>
         <text x="670" y="212" textAnchor="middle" fontSize="11" fill="#262626" fontFamily="system-ui">
-          @ZargBot · webhook + send
+          @StarUpBot · webhook + send
         </text>
       </g>
 

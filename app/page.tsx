@@ -7,7 +7,7 @@ const features = [
     tone: "pink" as const,
     title: "Discovery as signup",
     body:
-      "Ten minutes of chat. Zarg learns how your business runs today and builds your operations profile. No forms.",
+      "Ten minutes of chat. StarUp learns how your business runs today and builds your operations profile. No forms.",
   },
   {
     tone: "violet" as const,
@@ -28,7 +28,7 @@ export default function LandingPage() {
     <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
-          <span className="text-[20px] font-semibold tracking-tight text-ink">Zarg</span>
+          <span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span>
           <div className="flex items-center gap-2.5">
             <GhostLink href="/concept" className="hidden sm:inline-flex">
               How it works
@@ -69,7 +69,7 @@ export default function LandingPage() {
                   Z
                 </div>
                 <div>
-                  <p className="text-[15px] font-medium text-ink">ZargBot</p>
+                  <p className="text-[15px] font-medium text-ink">StarUpBot</p>
                   <p className="text-[12px] text-slate">Daily briefing · 08:00</p>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function LandingPage() {
         </section>
 
         <footer className="mt-32 border-t border-whisper-gray/40 pt-8">
-          <p className="text-[13px] text-slate">Zarg · A DINNO prototype · Built in 2026</p>
+          <p className="text-[13px] text-slate">StarUp · A DINNO prototype · Built in 2026</p>
         </footer>
       </div>
     </main>

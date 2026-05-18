@@ -7,7 +7,7 @@ import { loadProfile } from "@/lib/db/discovery";
 import { getDb, schema } from "@/lib/db/client";
 import { eq } from "drizzle-orm";
 
-export const metadata = { title: "Profile ready · Zarg" };
+export const metadata = { title: "Profile ready · StarUp" };
 export const dynamic = "force-dynamic";
 
 function pretty(v: unknown): string {
@@ -34,7 +34,7 @@ export default async function OnboardingDonePage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-10">
         <header className="flex items-center justify-between">
           <Link href="/" className="text-[20px] font-semibold tracking-tight text-ink">
-            Zarg
+            StarUp
           </Link>
         </header>
 
@@ -46,7 +46,7 @@ export default async function OnboardingDonePage() {
             {tenant?.name} — operations spec
           </h1>
           <p className="mt-3 text-[15px] leading-[1.5] text-ink/80">
-            Here's what Zarg learned. You can edit any of this later from the dashboard.
+            Here's what StarUp learned. You can edit any of this later from the dashboard.
           </p>
 
           <section className="mt-8 space-y-5">
