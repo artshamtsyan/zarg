@@ -79,25 +79,32 @@ export default async function DashboardPage() {
             footer="Real bookings, payments, attendance — typed in plain language"
           />
           <DashboardLink
+            href="/dashboard/sources"
+            tone="sky"
+            label="Data sources"
+            value="Upload customers, link calendar"
+            footer="Replace synthetic baseline with your real data"
+          />
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <DashboardLink
             href="/dashboard/data"
             tone="pink"
             label="Data"
             value={`${counts[0]} people · ${counts[1]} events`}
-            footer="Synthetic baseline + everything you've taught StarUp"
+            footer="Synthetic + imported + taught"
           />
-        </div>
-        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
           <DashboardLink
             href="/dashboard/telegram"
             tone="violet"
             label="Telegram"
             value="Link your bot"
-            footer="Daily briefing comes to your phone"
+            footer="Daily briefing on your phone"
           />
           <DashboardLink
             href="/dashboard/profile"
             tone="yellow"
-            label="Business profile"
+            label="Profile"
             value="What StarUp knows"
             footer="Edit anything from discovery"
           />

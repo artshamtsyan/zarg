@@ -33,6 +33,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: "/dashboard/sources",
+    label: "Sources",
+    icon: (
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 5h10M3 9h10M3 13h6" />
+        <circle cx="13" cy="13" r="2" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
     href: "/dashboard/telegram",
     label: "Telegram",
     icon: (

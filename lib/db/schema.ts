@@ -219,6 +219,21 @@ export const briefings = pgTable(
   })
 );
 
+// ─── Tenant integrations (Excel/CSV uploads, iCal feeds, etc.) ──────────────
+
+export const tenantIntegrations = pgTable("tenant_integrations", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tenantId: uuid("tenant_id")
+    .notNull()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  kind: text("kind").notNull(), // "csv_upload" | "ical"
+  status: text("status").notNull().default("active"), // "active" | "error" | "paused"
+  config: jsonb("config").notNull().default({}),
+  lastSyncAt: timestamp("last_sync_at", { mode: "date" }),
+  lastError: text("last_error"),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
 // ─── Usage / cost tracking ───────────────────────────────────────────────────
 
 export const usageEvents = pgTable("usage_events", {
@@ -243,3 +258,5 @@ export type BusinessProfile = typeof businessProfiles.$inferSelect;
 export type DiscoveryMessage = typeof discoveryMessages.$inferSelect;
 export type Briefing = typeof briefings.$inferSelect;
 export type UsageEvent = typeof usageEvents.$inferSelect;
+export type TenantIntegration = typeof tenantIntegrations.$inferSelect;
+export type NewTenantIntegration = typeof tenantIntegrations.$inferInsert;
