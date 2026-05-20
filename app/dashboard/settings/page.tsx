@@ -28,7 +28,6 @@ export default async function SettingsPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2">
-            <LogoMark className="h-5 w-5 text-outline-blue" />
             <span className="inline-flex items-center gap-2"><span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span><LogoMark className="h-5 w-auto" /></span>
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
@@ -60,16 +59,7 @@ export default async function SettingsPage() {
 
         <GhostCard className="mt-6 p-5">
           <p className="text-[11px] uppercase tracking-[1.5px] text-slate">Account</p>
-          <dl className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div>
-              <dt className="text-[12px] text-slate">Email</dt>
-              <dd className="text-[14px] text-ink">{session.user.email}</dd>
-            </div>
-            <div>
-              <dt className="text-[12px] text-slate">Tenant ID</dt>
-              <dd className="font-mono text-[12px] text-ink/70">{session.user.tenantId}</dd>
-            </div>
-          </dl>
+          <p className="mt-2 text-[14px] text-ink">{session.user.email}</p>
         </GhostCard>
       </div>
     </main>

@@ -5,8 +5,9 @@ import { auth } from "@/lib/auth/auth";
 import { getDb, schema } from "@/lib/db/client";
 import { and, desc, eq } from "drizzle-orm";
 import { GhostCard } from "@/components/ui/GhostCard";
+import { vocabFor, cap } from "@/lib/vocab";
 
-export const metadata = { title: "Demo data · StarUp" };
+export const metadata = { title: "Your data · StarUp" };
 export const dynamic = "force-dynamic";
 
 function formatDate(d: Date | null): string {
@@ -30,6 +31,7 @@ export default async function DataPage() {
   const tenantId = session.user.tenantId;
 
   const db = getDb();
+  const vocab = await vocabFor(tenantId);
   const [people, events, bookings, payments, pkgs] = await Promise.all([
     db.select().from(schema.people).where(eq(schema.people.tenantId, tenantId)).limit(50),
     db
@@ -59,7 +61,6 @@ export default async function DataPage() {
       <div className="mx-auto max-w-5xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2">
-            <LogoMark className="h-5 w-5 text-outline-blue" />
             <span className="inline-flex items-center gap-2"><span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span><LogoMark className="h-5 w-auto" /></span>
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
@@ -79,12 +80,15 @@ export default async function DataPage() {
         </div>
 
         <h1 className="mt-5 text-[32px] font-semibold leading-[1.15] tracking-heading-sm text-ink">
-          Operational dataset
+          Your {vocab.people}, {vocab.events}, and money
         </h1>
         <p className="mt-2 max-w-2xl text-[15px] leading-[1.5] text-slate">
-          A synthetic 4-week baseline gives your dashboard a head start. Every row you teach StarUp
-          on <Link href="/dashboard/learn" className="text-outline-blue underline underline-offset-2">/dashboard/learn</Link> lands here in real time and gradually replaces the
-          synthetic noise.
+          StarUp seeds a 4-week baseline so this page isn&apos;t empty on day one. Anything you teach
+          StarUp on the{" "}
+          <Link href="/dashboard/learn" className="text-outline-blue underline underline-offset-2">
+            Tell StarUp
+          </Link>{" "}
+          chat lands here as real, marked <strong className="font-semibold">you</strong>.
         </p>
 
         {empty && (
@@ -96,22 +100,22 @@ export default async function DataPage() {
           </GhostCard>
         )}
 
-        <Section title={`People (${people.length})`}>
+        <Section title={`${cap(vocab.people)} (${people.length})`}>
           <Table
-            cols={["Name", "Status", "Segment", "Joined", "Source"]}
+            cols={["Name", "Status", "Notes", "Joined", "Source"]}
             rows={people.slice(0, 16).map((p) => [
               p.name,
               p.status,
-              p.segment ?? "—",
+              p.segment ?? p.notes ?? "—",
               formatDate(p.joinedAt),
               renderSource(p.source),
             ])}
           />
         </Section>
 
-        <Section title={`Events (${events.length})`}>
+        <Section title={`${cap(vocab.events)} (${events.length})`}>
           <Table
-            cols={["Starts", "Staff", "Type", "Status", "Source"]}
+            cols={["When", "With", "Type", "Status", "Source"]}
             rows={events.slice(0, 16).map((e) => [
               formatDate(e.startsAt),
               e.staffName ?? "—",
@@ -122,9 +126,9 @@ export default async function DataPage() {
           />
         </Section>
 
-        <Section title={`Bookings (${bookings.length})`}>
+        <Section title={`Sign-ups (${bookings.length})`}>
           <Table
-            cols={["Booking ID", "Status", "Attendance", "Booked at", "Source"]}
+            cols={["#", "Status", "Showed up?", "When booked", "Source"]}
             rows={bookings.slice(0, 16).map((b) => [
               b.id.slice(0, 8),
               b.status,
@@ -137,7 +141,7 @@ export default async function DataPage() {
 
         <Section title={`Payments (${payments.length})`}>
           <Table
-            cols={["Amount", "Method", "Status", "Kind", "Paid at", "Source"]}
+            cols={["Amount", "Method", "Status", "Kind", "When", "Source"]}
             rows={payments.slice(0, 16).map((p) => [
               money(p.amountMinor, p.currency),
               p.method,

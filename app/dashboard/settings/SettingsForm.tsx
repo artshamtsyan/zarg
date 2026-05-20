@@ -104,34 +104,62 @@ export function SettingsForm({ initial }: { initial: Initial }) {
         <p className="text-[11px] uppercase tracking-[1.5px] text-slate">Daily briefing</p>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
-            <span className="text-[12px] uppercase tracking-[1px] text-slate">Timezone (IANA)</span>
-            <input
+            <span className="text-[12px] uppercase tracking-[1px] text-slate">Where are you?</span>
+            <select
               value={draft.timezone}
               onChange={(e) => setDraft((d) => ({ ...d, timezone: e.target.value }))}
-              placeholder="Asia/Yerevan"
               className={inputClass}
-            />
+            >
+              <optgroup label="Armenia & Caucasus">
+                <option value="Asia/Yerevan">Yerevan</option>
+                <option value="Asia/Tbilisi">Tbilisi</option>
+                <option value="Asia/Baku">Baku</option>
+              </optgroup>
+              <optgroup label="Europe">
+                <option value="Europe/Moscow">Moscow</option>
+                <option value="Europe/Istanbul">Istanbul</option>
+                <option value="Europe/Berlin">Berlin</option>
+                <option value="Europe/London">London</option>
+              </optgroup>
+              <optgroup label="Middle East">
+                <option value="Asia/Dubai">Dubai</option>
+                <option value="Asia/Tehran">Tehran</option>
+              </optgroup>
+              <optgroup label="Americas">
+                <option value="America/New_York">New York</option>
+                <option value="America/Chicago">Chicago</option>
+                <option value="America/Los_Angeles">Los Angeles</option>
+              </optgroup>
+            </select>
+            <span className="mt-1 block text-[12px] text-slate">
+              Used to know when &quot;morning&quot; is for you.
+            </span>
           </label>
           <label className="block">
-            <span className="text-[12px] uppercase tracking-[1px] text-slate">Briefing time (24h)</span>
+            <span className="text-[12px] uppercase tracking-[1px] text-slate">Briefing arrives at</span>
             <input
               type="time"
               value={draft.briefingLocalTime}
               onChange={(e) => setDraft((d) => ({ ...d, briefingLocalTime: e.target.value }))}
               className={inputClass}
             />
+            <span className="mt-1 block text-[12px] text-slate">
+              Your local time. Default 08:00.
+            </span>
           </label>
           <label className="block">
             <span className="text-[12px] uppercase tracking-[1px] text-slate">Language</span>
-            <input
+            <select
               value={draft.language}
               onChange={(e) => setDraft((d) => ({ ...d, language: e.target.value }))}
-              maxLength={8}
-              placeholder="en / hy / ru"
               className={inputClass}
-            />
-            <span className="mt-1 block text-[12px] text-whisper-gray">
-              The briefing is English-only in this prototype; the field is reserved for v2.
+            >
+              <option value="en">English</option>
+              <option value="hy">Armenian (հայերեն) — coming soon</option>
+              <option value="ru">Русский — coming soon</option>
+            </select>
+            <span className="mt-1 block text-[12px] text-slate">
+              The briefing is English-only for now; we&apos;re wiring Armenian + Russian next.
             </span>
           </label>
         </div>

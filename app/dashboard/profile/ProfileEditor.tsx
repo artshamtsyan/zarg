@@ -5,70 +5,40 @@ import { useRouter } from "next/navigation";
 import { TaskCard } from "@/components/ui/TaskCard";
 import { Pill } from "@/components/ui/Pill";
 import { Ghost } from "@/components/ui/Ghost";
-import { updateProfileField } from "@/lib/actions/profile";
+import { updateProfilePlainText } from "@/lib/actions/profile";
 
-interface ProfileFields {
-  currentState: unknown;
-  goals: unknown;
-  kpis: unknown;
-  entities: unknown;
-  keyWorkflows: unknown;
-  proposedFlow: unknown;
-  mvpScope: unknown;
-  risks: unknown;
-}
-
-const FIELDS: Array<{
-  key: keyof ProfileFields;
+export interface ProfileSlotProps {
+  slot: string;
   label: string;
   tone: "pink" | "violet" | "mint" | "sky" | "yellow";
   description: string;
-}> = [
-  { key: "currentState", label: "Current state", tone: "violet", description: "Snapshot of how the business runs today." },
-  { key: "goals", label: "Goals", tone: "pink", description: "What the owner is optimizing for." },
-  { key: "entities", label: "Entity vocabulary", tone: "mint", description: "What you call clients, classes, sessions." },
-  { key: "kpis", label: "KPIs", tone: "yellow", description: "Numbers worth tracking each week." },
-  { key: "keyWorkflows", label: "Key workflows", tone: "sky", description: "Repeatable manual processes." },
-  { key: "proposedFlow", label: "Proposed flow / assessment", tone: "pink", description: "Discovery's automation recommendation." },
-  { key: "mvpScope", label: "MVP scope", tone: "mint", description: "What to build first to prove value." },
-  { key: "risks", label: "Risks", tone: "yellow", description: "Things that could go wrong." },
-];
+  placeholder: string;
+  multi?: boolean;
+  initial: string;
+}
 
-export function ProfileEditor({ initial }: { initial: ProfileFields }) {
+export function ProfileEditor({ slots }: { slots: ProfileSlotProps[] }) {
   return (
     <div className="mt-8 space-y-4">
-      {FIELDS.map((f) => (
-        <FieldEditor key={f.key} field={f.key} label={f.label} tone={f.tone} description={f.description} value={initial[f.key]} />
+      {slots.map((s) => (
+        <ProfileSlot key={s.slot} {...s} />
       ))}
     </div>
   );
 }
 
-function FieldEditor({
-  field,
-  label,
-  tone,
-  description,
-  value,
-}: {
-  field: keyof ProfileFields;
-  label: string;
-  tone: "pink" | "violet" | "mint" | "sky" | "yellow";
-  description: string;
-  value: unknown;
-}) {
+function ProfileSlot({ slot, label, tone, description, placeholder, multi, initial }: ProfileSlotProps) {
   const router = useRouter();
-  const initialText = pretty(value);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(initialText);
+  const [draft, setDraft] = useState(initial);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const empty = isEmpty(value);
+  const empty = initial.trim().length === 0;
 
   const save = useCallback(() => {
     setError(null);
     startTransition(async () => {
-      const r = await updateProfileField(field, draft);
+      const r = await updateProfilePlainText(slot, draft);
       if (r.ok) {
         setEditing(false);
         router.refresh();
@@ -76,37 +46,51 @@ function FieldEditor({
         setError(r.error ?? "Couldn't save");
       }
     });
-  }, [field, draft, router]);
+  }, [slot, draft, router]);
 
-  const cancel = useCallback(() => {
-    setDraft(initialText);
+  const cancel = () => {
+    setDraft(initial);
     setError(null);
     setEditing(false);
-  }, [initialText]);
+  };
 
   return (
     <TaskCard tone={tone} className="p-6">
       <div className="flex items-baseline justify-between gap-3">
         <div>
-          <h3 className="text-[18px] font-semibold text-ink">{label}</h3>
+          <h3 className="text-[17px] font-semibold text-ink">{label}</h3>
           <p className="mt-0.5 text-[12px] text-ink/65">{description}</p>
         </div>
-        {!editing && (
-          <Ghost onClick={() => setEditing(true)}>{empty ? "Add" : "Edit"}</Ghost>
-        )}
+        {!editing && <Ghost onClick={() => setEditing(true)}>{empty ? "Add" : "Edit"}</Ghost>}
       </div>
 
       {editing ? (
         <div className="mt-4">
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={Math.max(6, Math.min(20, draft.split("\n").length + 1))}
-            className="block w-full rounded-[10px] border border-whisper-gray bg-canvas-ice px-3 py-2.5 font-mono text-[13px] leading-[1.5] text-ink outline-none focus:border-outline-blue"
-          />
+          {multi ? (
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={Math.max(4, Math.min(14, draft.split("\n").length + 1))}
+              placeholder={placeholder}
+              className="block w-full rounded-[10px] border border-whisper-gray bg-canvas-ice px-3 py-2.5 text-[14px] leading-[1.5] text-ink outline-none focus:border-outline-blue"
+            />
+          ) : (
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder={placeholder}
+              maxLength={80}
+              className="block w-full rounded-[10px] border border-whisper-gray bg-canvas-ice px-3 py-2.5 text-[15px] text-ink outline-none focus:border-outline-blue"
+            />
+          )}
+          {multi && (
+            <p className="mt-1 text-[11px] text-ink/55">
+              One per line. Dashes (-) and bullets (•) are stripped.
+            </p>
+          )}
           {error && <p className="mt-2 text-[13px] text-accent-orange">{error}</p>}
           <div className="mt-3 flex items-center gap-2.5">
-            <Pill onClick={save} disabled={pending || draft === initialText}>
+            <Pill onClick={save} disabled={pending || draft === initial}>
               {pending ? "Saving…" : "Save"}
             </Pill>
             <Ghost onClick={cancel} disabled={pending}>
@@ -114,29 +98,25 @@ function FieldEditor({
             </Ghost>
           </div>
         </div>
+      ) : empty ? (
+        <p className="mt-3 text-[14px] italic text-ink/60">
+          Not set yet. Tap <strong>Add</strong> to fill this in.
+        </p>
+      ) : multi ? (
+        <ul className="mt-3 space-y-1.5">
+          {initial.split("\n").map((line, i) => (
+            <li
+              key={i}
+              className="flex gap-2 text-[15px] leading-[1.5] text-ink"
+            >
+              <span className="text-ink/40">•</span>
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
       ) : (
-        <pre className="mt-3 max-h-64 overflow-y-auto whitespace-pre-wrap rounded-[10px] bg-canvas-ice px-4 py-3 font-mono text-[13px] leading-[1.55] text-ink/85">
-          {empty ? "—" : initialText}
-        </pre>
+        <p className="mt-3 text-[15px] leading-[1.5] text-ink">{initial}</p>
       )}
     </TaskCard>
   );
-}
-
-function pretty(v: unknown): string {
-  if (v === null || v === undefined) return "";
-  if (typeof v === "string") return v;
-  try {
-    return JSON.stringify(v, null, 2);
-  } catch {
-    return String(v);
-  }
-}
-
-function isEmpty(v: unknown): boolean {
-  if (v === null || v === undefined) return true;
-  if (typeof v === "string") return v.length === 0;
-  if (Array.isArray(v)) return v.length === 0;
-  if (typeof v === "object") return Object.keys(v as object).length === 0;
-  return false;
 }

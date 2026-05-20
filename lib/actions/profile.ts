@@ -101,6 +101,92 @@ export async function updateProfileField(
   return { ok: true };
 }
 
+// ─── Plain-text editor (non-technical owners shouldn't see JSON) ────────
+
+interface ProfileTextSlot {
+  field: JsonbField;
+  /** How to shape the input text into jsonb */
+  shape: "summary" | "items" | "people_label" | "events_label";
+}
+
+const PLAIN_SLOTS: Record<string, ProfileTextSlot> = {
+  business_summary: { field: "currentState", shape: "summary" },
+  goals: { field: "goals", shape: "items" },
+  kpis: { field: "kpis", shape: "items" },
+  workflows: { field: "keyWorkflows", shape: "items" },
+  risks: { field: "risks", shape: "items" },
+  people_label: { field: "entities", shape: "people_label" },
+  events_label: { field: "entities", shape: "events_label" },
+};
+
+function isPlainSlot(name: string): name is keyof typeof PLAIN_SLOTS {
+  return Object.prototype.hasOwnProperty.call(PLAIN_SLOTS, name);
+}
+
+function asObject(v: unknown): Record<string, unknown> {
+  return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+}
+
+export async function updateProfilePlainText(
+  slot: string,
+  text: string
+): Promise<UpdateResult> {
+  const session = await auth();
+  if (!session?.user?.tenantId) return { ok: false, error: "Not signed in" };
+  if (!isPlainSlot(slot)) return { ok: false, error: `Unknown slot: ${slot}` };
+
+  const slotDef = PLAIN_SLOTS[slot];
+  const trimmed = (text ?? "").trim();
+  const db = getDb();
+
+  // Load current value for the target jsonb field so we can merge instead
+  // of clobbering sibling sub-keys.
+  const [existing] = await db
+    .select()
+    .from(schema.businessProfiles)
+    .where(eq(schema.businessProfiles.tenantId, session.user.tenantId))
+    .limit(1);
+
+  let next: object;
+  if (slotDef.field === "keyWorkflows") {
+    // Workflows are an array — store text lines as { name, summary } objects.
+    const items = trimmed
+      .split(/\r?\n/)
+      .map((l) => l.replace(/^[-*•·]\s*/, "").trim())
+      .filter(Boolean);
+    next = items.map((line) => ({ name: line.slice(0, 80), summary: line }));
+  } else {
+    const current = asObject(existing?.[slotDef.field as keyof typeof existing]);
+    if (slotDef.shape === "summary") {
+      next = { ...current, summary: trimmed };
+    } else if (slotDef.shape === "items") {
+      const items = trimmed
+        .split(/\r?\n/)
+        .map((l) => l.replace(/^[-*•·]\s*/, "").trim())
+        .filter(Boolean);
+      next = { ...current, items };
+    } else if (slotDef.shape === "people_label") {
+      next = { ...current, people_label: trimmed.slice(0, 60) };
+    } else {
+      next = { ...current, events_label: trimmed.slice(0, 60) };
+    }
+  }
+
+  await db
+    .update(schema.businessProfiles)
+    .set({ [slotDef.field]: next, updatedAt: new Date() } as Partial<
+      typeof schema.businessProfiles.$inferInsert
+    >)
+    .where(eq(schema.businessProfiles.tenantId, session.user.tenantId));
+
+  revalidatePath("/dashboard/profile");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+// Reader helper lives in lib/profile-text.ts (sync function — can't live
+// in a "use server" module).
+
 // ─── Pause / resume helpers (settings page reuses Telegram action's logic) ──
 
 export async function setTenantStatusViaProfile(status: TenantStatus): Promise<UpdateResult> {

@@ -34,7 +34,6 @@ export default async function BriefingsPage() {
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
           <Link href="/" className="inline-flex items-center gap-2">
-            <LogoMark className="h-5 w-5 text-outline-blue" />
             <span className="inline-flex items-center gap-2"><span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span><LogoMark className="h-5 w-auto" /></span>
           </Link>
           <Link href="/dashboard" className="text-[13px] text-slate hover:text-ink">
