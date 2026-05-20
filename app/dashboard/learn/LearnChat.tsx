@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Pill } from "@/components/ui/Pill";
 
 interface ToolReceipt {
@@ -25,13 +26,23 @@ const TOOL_LABELS: Record<string, string> = {
 };
 
 export function LearnChat() {
+  const searchParams = useSearchParams();
+  const prefill = searchParams?.get("prefill") ?? "";
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [streaming, setStreaming] = useState<string>("");
   const [streamingReceipts, setStreamingReceipts] = useState<ToolReceipt[]>([]);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(prefill);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // If we arrive with ?prefill=…, pre-fill the input once.
+  useEffect(() => {
+    if (prefill) setInput(prefill);
+    // intentionally only on first mount with the URL param
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const el = scrollRef.current;

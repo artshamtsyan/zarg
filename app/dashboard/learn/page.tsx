@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { LogoMark } from "@/components/ui/Logo";
 import Link from "next/link";
+import { Suspense } from "react";
 import { auth } from "@/lib/auth/auth";
 import { getDb, schema } from "@/lib/db/client";
 import { and, eq, gte } from "drizzle-orm";
@@ -51,7 +52,9 @@ export default async function LearnPage() {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-[1.5fr_1fr]">
-          <LearnChat />
+          <Suspense fallback={<div className="text-[14px] text-slate">Loading…</div>}>
+            <LearnChat />
+          </Suspense>
 
           <aside className="space-y-4">
             <TaskCard tone="mint" className="p-5">
