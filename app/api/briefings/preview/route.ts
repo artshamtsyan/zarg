@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth/auth";
 import { getDb, schema } from "@/lib/db/client";
 import { and, desc, eq } from "drizzle-orm";
 import { buildSnapshot } from "@/lib/db/snapshot";
-import { generateBriefingBody } from "@/lib/ai/briefing";
+import { generateBriefingBody, extractSuggestedActions } from "@/lib/ai/briefing";
 import { ageTenantData } from "@/lib/jobs/age-data";
 import { loadProfile } from "@/lib/db/discovery";
 import { formatInTimeZone } from "date-fns-tz";
@@ -66,18 +66,31 @@ export async function POST(req: Request) {
     throw err;
   }
 
-  // Persist (idempotent on tenant_id + for_date)
+  const suggestedActions = extractSuggestedActions(body);
+
+  // Persist (idempotent on tenant_id + for_date + kind)
   const [existing] = await db
     .select()
     .from(schema.briefings)
-    .where(and(eq(schema.briefings.tenantId, tenantId), eq(schema.briefings.forDate, forDate)))
+    .where(
+      and(
+        eq(schema.briefings.tenantId, tenantId),
+        eq(schema.briefings.forDate, forDate),
+        eq(schema.briefings.kind, "daily")
+      )
+    )
     .limit(1);
 
   let row;
   if (existing) {
     [row] = await db
       .update(schema.briefings)
-      .set({ bodyMarkdown: body, generatedAt: new Date(), status: "queued" })
+      .set({
+        bodyMarkdown: body,
+        suggestedActions,
+        generatedAt: new Date(),
+        status: "queued",
+      })
       .where(eq(schema.briefings.id, existing.id))
       .returning();
   } else {
@@ -86,7 +99,9 @@ export async function POST(req: Request) {
       .values({
         tenantId,
         forDate,
+        kind: "daily",
         bodyMarkdown: body,
+        suggestedActions,
         status: "queued",
       })
       .returning();

@@ -13,6 +13,7 @@ interface Initial {
   location: string;
   timezone: string;
   briefingLocalTime: string;
+  eveningRecapTime: string;
   language: string;
   status: string;
 }
@@ -33,6 +34,7 @@ export function SettingsForm({ initial }: { initial: Initial }) {
     draft.location !== initial.location ||
     draft.timezone !== initial.timezone ||
     draft.briefingLocalTime !== initial.briefingLocalTime ||
+    draft.eveningRecapTime !== initial.eveningRecapTime ||
     draft.language !== initial.language;
 
   const save = useCallback(() => {
@@ -45,6 +47,7 @@ export function SettingsForm({ initial }: { initial: Initial }) {
         location: draft.location,
         timezone: draft.timezone,
         briefingLocalTime: draft.briefingLocalTime,
+        eveningRecapTime: draft.eveningRecapTime,
         language: draft.language,
       });
       if (r.ok) {
@@ -136,7 +139,7 @@ export function SettingsForm({ initial }: { initial: Initial }) {
             </span>
           </label>
           <label className="block">
-            <span className="text-[12px] uppercase tracking-[1px] text-slate">Briefing arrives at</span>
+            <span className="text-[12px] uppercase tracking-[1px] text-slate">Morning briefing at</span>
             <input
               type="time"
               value={draft.briefingLocalTime}
@@ -145,6 +148,18 @@ export function SettingsForm({ initial }: { initial: Initial }) {
             />
             <span className="mt-1 block text-[12px] text-slate">
               Your local time. Default 08:00.
+            </span>
+          </label>
+          <label className="block">
+            <span className="text-[12px] uppercase tracking-[1px] text-slate">Evening recap at</span>
+            <input
+              type="time"
+              value={draft.eveningRecapTime}
+              onChange={(e) => setDraft((d) => ({ ...d, eveningRecapTime: e.target.value }))}
+              className={inputClass}
+            />
+            <span className="mt-1 block text-[12px] text-slate">
+              Default 20:00. A one-tap &quot;how did today go?&quot; nudge in Telegram.
             </span>
           </label>
           <label className="block">

@@ -1,11 +1,11 @@
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, lt, sql } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db/client";
 import { env } from "@/lib/env";
 import { answerCallbackQuery, sendMessage } from "@/lib/telegram/client";
 import { briefingToMd2, escapeMd2 } from "@/lib/telegram/markdown";
 import { sendBriefingMessage, editBriefingMessage, sendPlainText } from "@/lib/telegram/send";
 import { buildSnapshot } from "@/lib/db/snapshot";
-import { generateBriefingBody } from "@/lib/ai/briefing";
+import { generateBriefingBody, extractSuggestedActions } from "@/lib/ai/briefing";
 import { ageTenantData } from "@/lib/jobs/age-data";
 import { loadProfile } from "@/lib/db/discovery";
 import { formatInTimeZone } from "date-fns-tz";
@@ -186,6 +186,7 @@ async function handlePreview(chatId: number, tenantId: string, ownerName: string
       snapshot,
       profile: { entities: profile?.entities, goals: profile?.goals },
     });
+    const suggestedActions = extractSuggestedActions(body);
 
     // Persist
     const db = getDb();
@@ -194,31 +195,50 @@ async function handlePreview(chatId: number, tenantId: string, ownerName: string
     const [existing] = await db
       .select()
       .from(schema.briefings)
-      .where(and(eq(schema.briefings.tenantId, tenantId), eq(schema.briefings.forDate, forDate)))
+      .where(
+        and(
+          eq(schema.briefings.tenantId, tenantId),
+          eq(schema.briefings.forDate, forDate),
+          eq(schema.briefings.kind, "daily")
+        )
+      )
       .limit(1);
 
-    const sent = await sendBriefingMessage({ chatId, body });
-
+    let briefingId: string;
     if (existing) {
-      await db
-        .update(schema.briefings)
-        .set({
-          bodyMarkdown: body,
-          status: "sent",
-          telegramMessageId: sent.message_id,
-          sentAt: new Date(),
-        })
-        .where(eq(schema.briefings.id, existing.id));
+      briefingId = existing.id;
     } else {
-      await db.insert(schema.briefings).values({
-        tenantId,
-        forDate,
+      const [row] = await db
+        .insert(schema.briefings)
+        .values({
+          tenantId,
+          forDate,
+          kind: "daily",
+          bodyMarkdown: body,
+          suggestedActions,
+          status: "queued",
+        })
+        .returning();
+      briefingId = row.id;
+    }
+
+    const sent = await sendBriefingMessage({
+      chatId,
+      body,
+      briefingId,
+      suggestedActions,
+    });
+
+    await db
+      .update(schema.briefings)
+      .set({
         bodyMarkdown: body,
+        suggestedActions,
         status: "sent",
         telegramMessageId: sent.message_id,
         sentAt: new Date(),
-      });
-    }
+      })
+      .where(eq(schema.briefings.id, briefingId));
   } catch (err) {
     console.error("[telegram/preview]", err);
     await sendPlainText(chatId, "Sorry — couldn't generate that briefing. Try again from the dashboard.");
@@ -238,23 +258,120 @@ async function handleCallback(cb: TgCallbackQuery) {
     return;
   }
 
-  const [action] = cb.data.split(":").slice(1);
-  if (action === "pause") {
-    await handlePause(cb.message.chat.id, owner.tenantId);
-    await answerCallbackQuery({ callback_query_id: cb.id, text: "Briefings paused." });
+  const parts = cb.data.split(":");
+  const namespace = parts[0];
+  const action = parts[1];
+
+  // briefing:pause / briefing:regenerate (legacy + utility)
+  if (namespace === "briefing") {
+    if (action === "pause") {
+      await handlePause(cb.message.chat.id, owner.tenantId);
+      await answerCallbackQuery({ callback_query_id: cb.id, text: "Briefings paused." });
+      return;
+    }
+    if (action === "regenerate") {
+      await answerCallbackQuery({ callback_query_id: cb.id, text: "Regenerating…" });
+      await regenerateBriefingForTenant({
+        tenantId: owner.tenantId,
+        chatId: cb.message.chat.id,
+        messageId: cb.message.message_id,
+        ownerName: owner.fullName,
+      });
+      return;
+    }
+  }
+
+  // act:<briefingId>:<idx> — owner tapped a Suggested-action chip
+  if (namespace === "act") {
+    const briefingId = parts[1];
+    const idx = parseInt(parts[2] ?? "0", 10);
+    const db = getDb();
+    const [briefing] = await db
+      .select()
+      .from(schema.briefings)
+      .where(eq(schema.briefings.id, briefingId))
+      .limit(1);
+    const actions = Array.isArray(briefing?.suggestedActions)
+      ? (briefing.suggestedActions as string[])
+      : [];
+    const actionText = actions[idx] ?? "";
+    if (!actionText) {
+      await answerCallbackQuery({ callback_query_id: cb.id, text: "Action not found." });
+      return;
+    }
+    const prefill = `Today's action: ${actionText}\n\n(Tell StarUp what you actually did — I'll log the outcome.)`;
+    const url = `${env.appUrl}/dashboard/learn?prefill=${encodeURIComponent(prefill)}`;
+    await answerCallbackQuery({
+      callback_query_id: cb.id,
+      text: "Opening StarUp…",
+      url,
+    } as Parameters<typeof answerCallbackQuery>[0] & { url: string });
+    // Fallback message in case the URL-on-callback isn't honored by client
+    await sendPlainText(
+      cb.message.chat.id,
+      `Open: ${url}`
+    );
     return;
   }
-  if (action === "regenerate") {
-    await answerCallbackQuery({ callback_query_id: cb.id, text: "Regenerating…" });
-    await regenerateBriefingForTenant({
-      tenantId: owner.tenantId,
-      chatId: cb.message.chat.id,
-      messageId: cb.message.message_id,
-      ownerName: owner.fullName,
-    });
-    return;
+
+  // eve:ok:<recapId> or eve:edit:<recapId> — evening recap buttons
+  if (namespace === "eve") {
+    const recapId = parts[2];
+    if (action === "ok") {
+      await markTodayAttended(owner.tenantId);
+      await answerCallbackQuery({ callback_query_id: cb.id, text: "✓ Marked as attended." });
+      await sendPlainText(
+        cb.message.chat.id,
+        "Got it — all today's classes marked as attended. See you tomorrow morning."
+      );
+      return;
+    }
+    if (action === "edit") {
+      const prefill = "Today's quick recap — what changed?";
+      const url = `${env.appUrl}/dashboard/learn?prefill=${encodeURIComponent(prefill)}`;
+      await answerCallbackQuery({ callback_query_id: cb.id, text: "Opening StarUp…" });
+      await sendPlainText(cb.message.chat.id, `Tell StarUp here: ${url}`);
+      void recapId;
+      return;
+    }
   }
+
   await answerCallbackQuery({ callback_query_id: cb.id });
+}
+
+async function markTodayAttended(tenantId: string) {
+  const db = getDb();
+  const tenant = (
+    await db.select().from(schema.tenants).where(eq(schema.tenants.id, tenantId)).limit(1)
+  )[0];
+  const tz = tenant?.timezone || "Asia/Yerevan";
+  const { formatInTimeZone, fromZonedTime } = await import("date-fns-tz");
+  const localStart = formatInTimeZone(new Date(), tz, "yyyy-MM-dd'T'00:00:00");
+  const localEnd = formatInTimeZone(new Date(), tz, "yyyy-MM-dd'T'23:59:59.999");
+  const startUtc = fromZonedTime(localStart, tz);
+  const endUtc = fromZonedTime(localEnd, tz);
+  // Mark today's bookings as attended if not already set.
+  await db.execute(
+    sql`UPDATE bookings b
+        SET attendance = 'attended'
+        FROM events e
+        WHERE b.event_id = e.id
+          AND b.tenant_id = ${tenantId}
+          AND e.starts_at BETWEEN ${startUtc} AND ${endUtc}
+          AND (b.attendance IS NULL OR b.attendance = 'pending')`
+  );
+  // Mark events as completed
+  await db
+    .update(schema.events)
+    .set({ status: "completed" })
+    .where(
+      and(
+        eq(schema.events.tenantId, tenantId),
+        gt(schema.events.startsAt, startUtc),
+        lt(schema.events.startsAt, endUtc),
+        eq(schema.events.status, "scheduled")
+      )
+    );
 }
 
 async function regenerateBriefingForTenant({
@@ -277,20 +394,49 @@ async function regenerateBriefingForTenant({
       snapshot,
       profile: { entities: profile?.entities, goals: profile?.goals },
     });
-    // Edit the existing Telegram message in place; persist the new body.
-    await editBriefingMessage({ chatId, messageId, body: body + "\n\n(updated)" });
+    const suggestedActions = extractSuggestedActions(body);
     const db = getDb();
     const tz = snapshot.tenant.timezone;
     const forDate = formatInTimeZone(new Date(), tz, "yyyy-MM-dd");
+
+    // Find or create the briefing row so we have an ID to bind chips to.
+    const [existing] = await db
+      .select()
+      .from(schema.briefings)
+      .where(
+        and(
+          eq(schema.briefings.tenantId, tenantId),
+          eq(schema.briefings.forDate, forDate),
+          eq(schema.briefings.kind, "daily")
+        )
+      )
+      .limit(1);
+    const briefingId = existing?.id ?? "";
+
+    // Edit the existing Telegram message in place; persist the new body.
+    await editBriefingMessage({
+      chatId,
+      messageId,
+      body: body + "\n\n(updated)",
+      briefingId,
+      suggestedActions,
+    });
     await db
       .update(schema.briefings)
       .set({
+        suggestedActions,
         bodyMarkdown: body,
         generatedAt: new Date(),
         status: "sent",
         sentAt: new Date(),
       })
-      .where(and(eq(schema.briefings.tenantId, tenantId), eq(schema.briefings.forDate, forDate)));
+      .where(
+        and(
+          eq(schema.briefings.tenantId, tenantId),
+          eq(schema.briefings.forDate, forDate),
+          eq(schema.briefings.kind, "daily")
+        )
+      );
   } catch (err) {
     console.error("[telegram/regenerate]", err);
     await sendPlainText(chatId, "Couldn't regenerate — try /preview to send a fresh one.");

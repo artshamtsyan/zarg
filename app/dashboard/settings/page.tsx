@@ -52,6 +52,7 @@ export default async function SettingsPage() {
             location: tenant?.location ?? "",
             timezone: tenant?.timezone ?? "Asia/Yerevan",
             briefingLocalTime: tenant?.briefingLocalTime ?? "08:00",
+            eveningRecapTime: tenant?.eveningRecapTime ?? "20:00",
             language: tenant?.language ?? "en",
             status: tenant?.status ?? "active",
           }}

@@ -122,6 +122,49 @@ function isSundayInTenantTz(t: BriefingSnapshot): boolean {
   return t.today.weekday === "Sunday";
 }
 
+export interface GeneratedBriefing {
+  body: string;
+  suggestedActions: string[];
+}
+
+/**
+ * Extract the numbered items under the "Suggested actions" heading from
+ * the briefing markdown. The prompt always emits this shape — we parse it
+ * out so we can render each action as a tappable Telegram chip.
+ */
+export function extractSuggestedActions(markdown: string): string[] {
+  const lines = markdown.split(/\r?\n/);
+  const out: string[] = [];
+  let inSection = false;
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (/^\*\*Suggested actions\*\*/i.test(line)) {
+      inSection = true;
+      continue;
+    }
+    if (inSection) {
+      // Stop when we hit the next bold heading or a different bullet shape
+      if (/^\*\*/.test(line) && !/^\*\*Suggested/i.test(line)) break;
+      const m = line.match(/^\d+\.\s+(.+)$/);
+      if (m) {
+        out.push(m[1].trim());
+        if (out.length >= 3) break;
+        continue;
+      }
+      // Allow blank lines inside the section
+      if (line === "") continue;
+      // Anything else means we've left the list
+      if (out.length > 0) break;
+    }
+  }
+  return out;
+}
+
+export async function generateBriefing(args: BuildArgs): Promise<GeneratedBriefing> {
+  const body = await generateBriefingBody(args);
+  return { body, suggestedActions: extractSuggestedActions(body) };
+}
+
 export async function generateBriefingBody(args: BuildArgs): Promise<string> {
   if (!env.hasAnthropic()) {
     return stubBriefing(args.snapshot);

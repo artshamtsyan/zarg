@@ -84,6 +84,7 @@ export const tenants = pgTable("tenants", {
   location: text("location").default("Armenia"),
   timezone: text("timezone").notNull().default("Asia/Yerevan"),
   briefingLocalTime: varchar("briefing_local_time", { length: 5 }).notNull().default("08:00"),
+  eveningRecapTime: varchar("evening_recap_time", { length: 5 }).notNull().default("20:00"),
   language: text("language").notNull().default("en"),
   status: text("status").$type<TenantStatus>().notNull().default("onboarding"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
@@ -207,7 +208,9 @@ export const briefings = pgTable(
       .notNull()
       .references(() => tenants.id, { onDelete: "cascade" }),
     forDate: date("for_date").notNull(),
+    kind: text("kind").notNull().default("daily"), // 'daily' | 'evening'
     bodyMarkdown: text("body_markdown").notNull(),
+    suggestedActions: jsonb("suggested_actions"), // string[] | null
     telegramMessageId: integer("telegram_message_id"),
     status: text("status").notNull().default("queued"), // queued|sent|failed|skipped
     error: text("error"),
@@ -215,7 +218,11 @@ export const briefings = pgTable(
     sentAt: timestamp("sent_at", { mode: "date" }),
   },
   (b) => ({
-    tenantDateIdx: uniqueIndex("briefings_tenant_date_idx").on(b.tenantId, b.forDate),
+    tenantDateKindIdx: uniqueIndex("briefings_tenant_date_kind_idx").on(
+      b.tenantId,
+      b.forDate,
+      b.kind
+    ),
   })
 );
 

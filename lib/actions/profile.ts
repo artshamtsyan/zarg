@@ -20,6 +20,7 @@ export interface TenantUpdate {
   location?: string;
   timezone?: string;
   briefingLocalTime?: string;
+  eveningRecapTime?: string;
   language?: string;
 }
 
@@ -49,6 +50,12 @@ export async function updateTenant(input: TenantUpdate): Promise<UpdateResult> {
       return { ok: false, error: "Briefing time must be HH:MM (24h)" };
     }
     next.briefingLocalTime = input.briefingLocalTime;
+  }
+  if (input.eveningRecapTime !== undefined) {
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.eveningRecapTime)) {
+      return { ok: false, error: "Evening recap time must be HH:MM (24h)" };
+    }
+    next.eveningRecapTime = input.eveningRecapTime;
   }
   if (input.language !== undefined) {
     next.language = input.language.trim().slice(0, 8) || "en";
