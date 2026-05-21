@@ -17,7 +17,7 @@ export default async function UploadPage() {
     <main className="bg-aboard min-h-screen">
       <div className="mx-auto max-w-3xl px-6 pb-24 pt-8">
         <header className="flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-2">
+          <Link href="/" className="inline-flex items-center gap-1.5">
             <span className="text-[20px] font-semibold tracking-tight text-ink">StarUp</span>
             <LogoMark className="h-5 w-auto" />
           </Link>

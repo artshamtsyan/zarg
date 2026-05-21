@@ -46,7 +46,7 @@ export default async function DashboardPage() {
       <div className="mx-auto max-w-3xl px-5 pb-24 pt-7 md:px-6 md:pt-8">
         {/* ─── Header ─────────────────────────────────────────── */}
         <header className="flex items-center justify-between">
-          <Link href="/" className="inline-flex items-center gap-2">
+          <Link href="/" className="inline-flex items-center gap-1.5">
             <span className="text-[19px] font-semibold tracking-tight text-ink">StarUp</span>
             <LogoMark className="h-4 w-auto" />
           </Link>

@@ -11,20 +11,21 @@ import { cn } from "@/lib/utils";
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 50 22"
+      viewBox="0 0 38 22"
       className={cn(className)}
       role="img"
       aria-label="StarUp mark"
     >
-      {/* Orange star — solid, no inner sparkle */}
+      {/* Orange star — solid, no inner sparkle. Left edge flush at x=0 so the
+          mark sits tight against the wordmark. */}
       <path
         fill="#ff6800"
-        d="M11 1L13 8L20.5 8.5L14.5 13.5L16.5 20.5L11 16.5L5.5 20.5L7.5 13.5L1.5 8.5L9 8Z"
+        d="M9.5 1L11.5 8L19 8.5L13 13.5L15 20.5L9.5 16.5L4 20.5L6 13.5L0 8.5L7.5 8Z"
       />
-      {/* Blue up-arrow */}
+      {/* Blue up-arrow — slim stem, tucked close to the star */}
       <path
         fill="#008ae8"
-        d="M40 1L48 9H44.5V20.5H35.5V9H32Z"
+        d="M31 1L37.5 8H33V20.5H29V8H24.5Z"
       />
     </svg>
   );
@@ -52,9 +53,9 @@ interface LogoProps {
 }
 
 const sizeMap: Record<NonNullable<LogoProps["size"]>, { mark: string; word: string; gap: string }> = {
-  sm: { mark: "h-4 w-auto", word: "text-[16px]", gap: "gap-2" },
-  md: { mark: "h-5 w-auto", word: "text-[20px]", gap: "gap-2.5" },
-  lg: { mark: "h-8 w-auto", word: "text-[28px]", gap: "gap-3" },
+  sm: { mark: "h-4 w-auto", word: "text-[16px]", gap: "gap-1" },
+  md: { mark: "h-5 w-auto", word: "text-[20px]", gap: "gap-1.5" },
+  lg: { mark: "h-8 w-auto", word: "text-[28px]", gap: "gap-2" },
 };
 
 /**
